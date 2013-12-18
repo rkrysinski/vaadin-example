@@ -14,16 +14,39 @@
 
 package com.krycha.vaadin.example.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Version;
+
 import org.joda.time.DateTime;
 
 /**
  * Incident entity.
  */
+@Entity
 public class Incident {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	protected int id;
+
+	@ManyToOne
+	@JoinColumn(name="CUSTOMER_ID")
 	protected Customer customer;
+
+	@ManyToOne
+	@JoinColumn(name="KPI_ID")
 	protected Measurement type;
+
 	protected DateTime date;
+
 	protected int count;
+
+	@Version
+	private long version;
 
 }

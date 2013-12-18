@@ -12,33 +12,17 @@
  * limitations under the License.
  ***************************************************************************/
 
-package com.krycha.vaadin.example.dao.impl;
+package com.krycha.vaadin.example.dao;
 
-import java.util.List;
-
-import com.krycha.vaadin.example.dao.ItemDAO;
-import com.krycha.vaadin.example.entity.Item;
-import com.krycha.vaadin.example.storage.SimpleStorage;
+import com.krycha.vaadin.example.entity.Incident;
 
 /**
- * Simple Storage implementation of ItemDAO.
+ *
  */
-public class SimpleStorageItemDAOImpl implements ItemDAO {
+public interface IncidentDAO {
 
-	private SimpleStorage storage = SimpleStorage.getInstance();
+	void updateIncident(Incident incident);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<Item> getAllItems() {
-		return storage.getAllItems();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void updateItem(Item item) {
-		storage.updateItem(item);
-	}
+	void addIncident(Incident incident);
 
 }

@@ -14,12 +14,24 @@
 
 package com.krycha.vaadin.example.entity;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Version;
+
 /**
  * Measurements entity.
  */
+@Entity
 public class Measurement {
 
+	@Id
+	@Column(name = "KPI_ID")
 	protected String shortName;
+
 	protected String description;
+
+	@Version
+	private long version;
 
 }

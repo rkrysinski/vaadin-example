@@ -14,16 +14,32 @@
 
 package com.krycha.vaadin.example.entity;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Version;
 
 /**
  * Customer entity.
  */
+@Entity
 public class Customer {
 
+	@Id
+	@Column(name = "CUSTOMER_ID")
 	protected String shortName;
+
 	protected String description;
-	protected List<Measurement> measurements;
-	protected List<Incident> incidents;
+
+	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval=true)
+	protected List<Incident> incidents =  new ArrayList<Incident>();
+
+	@Version
+	private long version;
 
 }

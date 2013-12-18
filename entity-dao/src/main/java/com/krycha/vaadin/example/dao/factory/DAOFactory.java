@@ -14,10 +14,12 @@
 
 package com.krycha.vaadin.example.dao.factory;
 
-import com.krycha.vaadin.example.dao.ItemDAO;
+import com.krycha.vaadin.example.dao.CustomerDAO;
+import com.krycha.vaadin.example.dao.IncidentDAO;
+import com.krycha.vaadin.example.dao.MeasurementDAO;
 
 /**
- * Abstract class DAOFactory that provides DAO for Item.
+ * Abstract class DAOFactory that provides DAO for Entities.
  */
 public abstract class DAOFactory {
 
@@ -25,40 +27,52 @@ public abstract class DAOFactory {
 	 * Type of DAO Factory.
 	 */
 	public enum Type {
-		SIMPLE_STORAGE, REST,
+		TEST, MY_SQL, ORACLE,
 	}
 
 	/**
-	 * Get the ItemDAO implemented by specific factory.
-	 * 
-	 * @return the ItemDAO
+	 * Get the CustomerDAO implemented by specific factory.
+	 *
+	 * @return the CustomerDAO
 	 */
-	public abstract ItemDAO getItemDAO();
+	public abstract CustomerDAO getCustomerDAO();
+
+	/**
+	 * Get the IncidentDAO implemented by specific factory.
+	 *
+	 * @return the IncidentDAO
+	 */
+	public abstract IncidentDAO getIncidentDAO();
+
+	/**
+	 * Get the MeasurementDAO implemented by specific factory.
+	 *
+	 * @return the MeasurementDAO
+	 */
+	public abstract MeasurementDAO getMeasurementDAO();
 
 	/**
 	 * Get the default DAO factory.
-	 * 
+	 *
 	 * @return default DAO factory (simple storage)
 	 */
 	public static DAOFactory getDefaultFactory() {
-		return getDAOFactory(Type.SIMPLE_STORAGE);
+		return getDAOFactory(Type.TEST);
 	}
 
 	/**
 	 * Get the DAO factory.
-	 * 
+	 *
 	 * @param type
 	 *            type of the DAO
 	 * @return specific DAO factory
 	 */
 	public static DAOFactory getDAOFactory(Type type) {
 		switch (type) {
-		case REST:
-			return new RestDAOFactory();
-		case SIMPLE_STORAGE:
-			// fall through
+		case TEST:
+			return new TestDAOFactory();
 		default:
-			return new SimpleStorageDAOFacgtory();
+			throw new IllegalArgumentException(type + " not implemented yet!");
 		}
 	}
 }

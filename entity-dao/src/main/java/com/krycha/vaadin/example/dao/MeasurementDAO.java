@@ -12,33 +12,18 @@
  * limitations under the License.
  ***************************************************************************/
 
-package com.krycha.vaadin.example.dao.impl;
+package com.krycha.vaadin.example.dao;
 
 import java.util.List;
 
-import com.krycha.vaadin.example.dao.ItemDAO;
-import com.krycha.vaadin.example.entity.Item;
+import com.krycha.vaadin.example.entity.Measurement;
 
 /**
- * REST ItemDAO implementation. This class contains all REST specific code. The
- * client is thus shielded from knowing these implementation details. 
- * TODO: implement me.
+ *
  */
-public class RestItemDAOImpl implements ItemDAO {
+public interface MeasurementDAO {
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<Item> getAllItems() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	void addMeasurement(Measurement kpi);
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void updateItem(Item item) {
-		// TODO Auto-generated method stub
-	}
-
+	List<Measurement> getAllMeasurements();
 }

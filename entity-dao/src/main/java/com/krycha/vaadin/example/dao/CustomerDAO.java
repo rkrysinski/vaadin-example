@@ -12,21 +12,29 @@
  * limitations under the License.
  ***************************************************************************/
 
-package com.krycha.vaadin.example.dao.factory;
+package com.krycha.vaadin.example.dao;
 
-import com.krycha.vaadin.example.dao.ItemDAO;
-import com.krycha.vaadin.example.dao.impl.RestItemDAOImpl;
+import java.util.List;
+
+import com.krycha.vaadin.example.entity.Customer;
 
 /**
- * Rest implementation of DAO factory.
+ * Customer DAO interface.
  */
-public class RestDAOFactory extends DAOFactory {
+public interface CustomerDAO {
 
 	/**
-	 * {@inheritDoc}
+	 * Get All Customers.
+	 *
+	 * @return list of all customers
 	 */
-	public ItemDAO getItemDAO() {
-		return new RestItemDAOImpl();
-	}
+	List<Customer> getAllCustomers();
 
+	/**
+	 * Update customer.
+	 *
+	 * @param customer
+	 *            obj to update
+	 */
+	void updateCustomer(Customer customer);
 }
