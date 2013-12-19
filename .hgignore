@@ -1,3 +1,9 @@
 
 syntax: regexp
 .*/target$
+syntax: regexp
+^gui/src/main/webapp/VAADIN/gwt-unitCache$
+syntax: regexp
+^gui/src/main/webapp/VAADIN/widgetsets$
+syntax: regexp
+^gui/src/main/webapp/VAADIN/themes/mytheme/styles\.css$
