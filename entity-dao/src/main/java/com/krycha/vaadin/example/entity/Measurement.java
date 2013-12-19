@@ -34,4 +34,58 @@ public class Measurement {
 	@Version
 	private long version;
 
+	/**
+	 * @return the shortName
+	 */
+	public String getShortName() {
+		return shortName;
+	}
+
+	/**
+	 * @param shortName
+	 *            the shortName to set
+	 */
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @param description
+	 *            the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/**
+	 * @return the version
+	 */
+	public long getVersion() {
+		return version;
+	}
+
+	/**
+	 * @param version
+	 *            the version to set
+	 */
+	public void setVersion(long version) {
+		this.version = version;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Measurement [shortName=" + shortName + ", description="
+				+ description + ", version=" + version + "]";
+	}
+
 }

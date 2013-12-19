@@ -35,11 +35,11 @@ public class Incident {
 	protected int id;
 
 	@ManyToOne
-	@JoinColumn(name="CUSTOMER_ID")
+	@JoinColumn(name = "CUSTOMER_ID")
 	protected Customer customer;
 
 	@ManyToOne
-	@JoinColumn(name="KPI_ID")
+	@JoinColumn(name = "KPI_ID")
 	protected Measurement type;
 
 	protected DateTime date;
@@ -48,5 +48,107 @@ public class Incident {
 
 	@Version
 	private long version;
+
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/**
+	 * @return the customer
+	 */
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	/**
+	 * @param customer
+	 *            the customer to set
+	 */
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public Measurement getType() {
+		return type;
+	}
+
+	/**
+	 * @param type
+	 *            the type to set
+	 */
+	public void setType(Measurement type) {
+		this.type = type;
+	}
+
+	/**
+	 * @return the date
+	 */
+	public DateTime getDate() {
+		return date;
+	}
+
+	/**
+	 * @param date
+	 *            the date to set
+	 */
+	public void setDate(DateTime date) {
+		this.date = date;
+	}
+
+	/**
+	 * @return the count
+	 */
+	public int getCount() {
+		return count;
+	}
+
+	/**
+	 * @param count
+	 *            the count to set
+	 */
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	/**
+	 * @return the version
+	 */
+	public long getVersion() {
+		return version;
+	}
+
+	/**
+	 * @param version
+	 *            the version to set
+	 */
+	public void setVersion(long version) {
+		this.version = version;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Incident [id=" + id + ", customer=" + customer.getShortName() + ", type="
+				+ type + ", date=" + date + ", count=" + count + ", version="
+				+ version + "]";
+	}
 
 }

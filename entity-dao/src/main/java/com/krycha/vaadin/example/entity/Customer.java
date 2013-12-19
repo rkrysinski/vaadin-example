@@ -36,10 +36,80 @@ public class Customer {
 
 	protected String description;
 
-	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval=true)
-	protected List<Incident> incidents =  new ArrayList<Incident>();
+	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+	protected List<Incident> incidents = new ArrayList<Incident>();
 
 	@Version
 	private long version;
+
+	/**
+	 * @return the shortName
+	 */
+	public String getShortName() {
+		return shortName;
+	}
+
+	/**
+	 * @param shortName
+	 *            the shortName to set
+	 */
+	public void setShortName(String shortName) {
+		this.shortName = shortName;
+	}
+
+	/**
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * @param description
+	 *            the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	/**
+	 * @return the incidents
+	 */
+	public List<Incident> getIncidents() {
+		return incidents;
+	}
+
+	/**
+	 * @param incidents
+	 *            the incidents to set
+	 */
+	public void setIncidents(List<Incident> incidents) {
+		this.incidents = incidents;
+	}
+
+	/**
+	 * @return the version
+	 */
+	public long getVersion() {
+		return version;
+	}
+
+	/**
+	 * @param version
+	 *            the version to set
+	 */
+	public void setVersion(long version) {
+		this.version = version;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Customer [shortName=" + shortName + ", description="
+				+ description + ", incidents=" + incidents + ", version="
+				+ version + "]";
+	}
 
 }

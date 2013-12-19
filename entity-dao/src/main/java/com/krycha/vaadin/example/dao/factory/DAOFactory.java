@@ -27,7 +27,7 @@ public abstract class DAOFactory {
 	 * Type of DAO Factory.
 	 */
 	public enum Type {
-		TEST, MY_SQL, ORACLE,
+		DERBY, MY_SQL, ORACLE,
 	}
 
 	/**
@@ -57,7 +57,7 @@ public abstract class DAOFactory {
 	 * @return default DAO factory (simple storage)
 	 */
 	public static DAOFactory getDefaultFactory() {
-		return getDAOFactory(Type.TEST);
+		return getDAOFactory(Type.DERBY);
 	}
 
 	/**
@@ -69,8 +69,8 @@ public abstract class DAOFactory {
 	 */
 	public static DAOFactory getDAOFactory(Type type) {
 		switch (type) {
-		case TEST:
-			return new TestDAOFactory();
+		case DERBY:
+			return new DerbyDAOFactory();
 		default:
 			throw new IllegalArgumentException(type + " not implemented yet!");
 		}

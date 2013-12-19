@@ -18,6 +18,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
@@ -31,12 +32,13 @@ import com.krycha.vaadin.example.entity.Measurement;
 /**
  *
  */
-public class TestDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
-	private static final String PERSISTENCE_UNIT_NAME = "testdao";
+public class DerbyDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
+
+	private static final String PERSISTENCE_UNIT_NAME = "derbydao";
 	private static final EntityManagerFactory EMF_OBJ = Persistence
 			.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 
-	public TestDAOImpl() {
+	public DerbyDAOImpl() {
 	}
 
 	public EntityManager get() {
@@ -50,32 +52,30 @@ public class TestDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
 
 	@Override
 	public void updateCustomer(Customer customer) {
-		// TODO Auto-generated method stub
+		store(customer);
 
 	}
 
 	@Override
 	public void updateIncident(Incident incident) {
-		// TODO Auto-generated method stub
+		store(incident);
 
 	}
 
 	@Override
 	public void addIncident(Incident incident) {
-		// TODO Auto-generated method stub
+		store(incident);
 
 	}
 
 	@Override
 	public void addMeasurement(Measurement kpi) {
-		// TODO Auto-generated method stub
-
+		store(kpi);
 	}
 
 	@Override
 	public List<Measurement> getAllMeasurements() {
-		// TODO Auto-generated method stub
-		return null;
+		return findAll(Measurement.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -94,4 +94,39 @@ public class TestDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
 		return retList;
 	}
 
+	private <T> void store(T obj) {
+		EntityManager em = get();
+		em.getTransaction().begin();
+		try {
+			em.merge(obj);
+		} finally {
+			em.getTransaction().commit();
+			em.close();
+		}
+	}
+
+	private <T> void remove(Class<T> c, Object id) {
+		EntityManager em = get();
+		em.getTransaction().begin();
+		try {
+			T toRemove = (T) em.find(c, id);
+			// System.out.println("remove: " + toRemove.toString());
+			em.remove(toRemove);
+		} catch (NoResultException e) {
+			// fall through, return null
+		} finally {
+			em.getTransaction().commit();
+			em.close();
+		}
+	}
+
+	public void wipeOut() {
+		List<Customer> customers = getAllCustomers();
+		for (Customer cust : customers) {
+			remove(Customer.class, cust.getShortName());
+		}
+		for (Measurement kpi : getAllMeasurements()) {
+			remove(Measurement.class, kpi.getShortName());
+		}
+	}
 }
