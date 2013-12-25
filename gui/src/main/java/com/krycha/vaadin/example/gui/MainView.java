@@ -3,30 +3,39 @@ package com.krycha.vaadin.example.gui;
 import com.krycha.vaadin.example.gui.elements.Content;
 import com.krycha.vaadin.example.gui.elements.Footer;
 import com.krycha.vaadin.example.gui.elements.Header;
-import com.vaadin.ui.UI;
+import com.krycha.vaadin.example.gui.elements.menu.Menu;
+import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.VerticalLayout;
 
-public class MainView extends VerticalLayout {
+public class MainView extends VerticalLayout implements View {
 
 	private static final long serialVersionUID = -2382953812809122378L;
 	private Header header;
 	private Content content;
 	private Footer footer;
-	private UI ui;
 
-	public MainView(UI ui) {
+	public MainView() {
 		super();
-		this.ui = ui;
 		buildMainArea();
 	}
 
 	private void buildMainArea() {
 		header = new Header();
-		content = new Content(ui);
+		content = new Content();
 		footer = new Footer();
 
 		addComponent(header);
 		addComponent(content);
 		addComponent(footer);
+	}
+
+	@Override
+	public void enter(ViewChangeEvent event) {
+		content.enter(event);
+	}
+
+	public Menu getMenu() {
+		return content.getMenu();
 	}
 }
