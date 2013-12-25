@@ -31,4 +31,6 @@
 
 
 
+
+    <inherits name="org.vaadin.jouni.animator.AnimatorWidgetset" />
 </module>

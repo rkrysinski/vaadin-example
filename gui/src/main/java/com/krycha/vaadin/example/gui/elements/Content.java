@@ -3,6 +3,12 @@ package com.krycha.vaadin.example.gui.elements;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.vaadin.jouni.animator.AnimatorProxy;
+import org.vaadin.jouni.animator.AnimatorProxy.Animation;
+import org.vaadin.jouni.animator.AnimatorProxy.AnimationEvent;
+import org.vaadin.jouni.animator.AnimatorProxy.AnimationListener;
+import org.vaadin.jouni.animator.shared.AnimType;
+
 import com.krycha.vaadin.example.gui.elements.content.WelcomeView;
 import com.krycha.vaadin.example.gui.elements.menu.Menu;
 import com.krycha.vaadin.example.gui.elements.menu.MenuElement;
@@ -27,6 +33,7 @@ public class Content extends CustomComponent implements View {
 	private static final long serialVersionUID = 3883694986681550326L;
 	private static final String DEFAULT_NAV = "default";
 	private Map<String, CustomComponent> menuViews = new HashMap<String, CustomComponent>();
+	private AnimatorProxy proxy = new AnimatorProxy();
 
 	/*- VaadinEditorProperties={"grid":"RegularGrid,20","showGrid":true,"snapToGrid":true,"snapToObject":true,"movingGuides":false,"snappingDistance":10} */
 	/**
@@ -39,7 +46,7 @@ public class Content extends CustomComponent implements View {
 	public Content() {
 		buildMainLayout();
 		setCompositionRoot(mainLayout);
-
+		mainLayout.addComponent(proxy);
 		menuViews.put(DEFAULT_NAV, new WelcomeView());
 		for (MenuElement menu : MenuElement.values()) {
 			try {
@@ -56,14 +63,25 @@ public class Content extends CustomComponent implements View {
 	@Override
 	public void enter(ViewChangeEvent event) {
 
+
 		if (event.getParameters() == null || event.getParameters().isEmpty()) {
 			panel.setContent(menuViews.get(DEFAULT_NAV));
 			return;
 		}
 
-		String viewItem = event.getParameters();
+		final String viewItem = event.getParameters();
 		if (menuViews.containsKey(viewItem)) {
-			panel.setContent(menuViews.get(viewItem));
+			final Animation a = proxy.animate(panel, AnimType.FADE_OUT).setDuration(100).setDelay(10);
+			proxy.addListener(new AnimationListener() {
+				@Override
+				public void onAnimation(AnimationEvent event) {
+					if (event.getAnimation() == a) {
+						panel.setContent(menuViews.get(viewItem));
+						proxy.animate(panel, AnimType.FADE_IN).setDuration(100).setDelay(10);
+						proxy.removeListener(this);
+					}
+				}
+			});
 		}
 
 		if (getMenu().isNotSelected()) {
@@ -83,23 +101,23 @@ public class Content extends CustomComponent implements View {
 		mainLayout.setWidth("100%");
 		mainLayout.setHeight("100%");
 		mainLayout.setMargin(true);
-		
+
 		// top-level component properties
 		setWidth("100.0%");
 		setHeight("100.0%");
-		
+
 		// menu
 		menu = new Menu();
 		menu.setImmediate(false);
 		menu.setWidth("-1px");
 		menu.setHeight("-1px");
 		mainLayout.addComponent(menu);
-		
+
 		// panel
 		panel = buildPanel();
 		mainLayout.addComponent(panel);
 		mainLayout.setExpandRatio(panel, 1.0f);
-		
+
 		return mainLayout;
 	}
 
@@ -110,7 +128,7 @@ public class Content extends CustomComponent implements View {
 		panel.setImmediate(false);
 		panel.setWidth("100.0%");
 		panel.setHeight("100.0%");
-		
+
 		// verticalPanelLayout
 		verticalPanelLayout = new VerticalLayout();
 		verticalPanelLayout.setImmediate(false);
@@ -118,7 +136,7 @@ public class Content extends CustomComponent implements View {
 		verticalPanelLayout.setHeight("100.0%");
 		verticalPanelLayout.setMargin(false);
 		panel.setContent(verticalPanelLayout);
-		
+
 		return panel;
 	}
 }
