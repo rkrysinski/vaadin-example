@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.krycha.vaadin.example.entity.Customer;
@@ -31,9 +32,10 @@ public class DerbyDAOImplTest {
 			kpi.setDescription("Description " + kpiName);
 			derbyImpl.addMeasurement(kpi);
 		}
-		for (String customerName : Arrays.asList("cust1")) {
+		for (String customerName : Arrays.asList("cust1", "cust2", "cust3")) {
 			Customer cust = new Customer();
 			cust.setShortName(customerName);
+			cust.setDescription("Description: " + customerName);
 			derbyImpl.updateCustomer(cust);
 		}
 
@@ -59,22 +61,22 @@ public class DerbyDAOImplTest {
 		}
 	}
 
-	@Test
+	@Ignore
 	public void testUpdateCustomer() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	@Ignore
 	public void testUpdateIncident() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	@Ignore
 	public void testAddIncident() {
 		fail("Not yet implemented");
 	}
 
-	@Test
+	@Ignore
 	public void testAddMeasurement() {
 		fail("Not yet implemented");
 	}

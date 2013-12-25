@@ -1,4 +1,5 @@
-/* Import the reindeer theme. */
+/* Import the reindeer theme.
+*/
 /* This only allows us to use the mixins defined in it and does not add any styles by itself. */
 @import "../reindeer/reindeer.scss";
 
@@ -8,5 +9,28 @@
   /* Include all the styles from the reindeer theme */
   @include reindeer;
 
-  /* Insert your theme rules here */
+	.v-nativebutton-selected {
+		.v-nativebutton-caption {
+			font-size: 15px;
+			font-family: 'Telex', sans-serif;
+			font-weight: bold;
+			color: white;
+		}
+		background: rgb(50, 203, 224);
+		border: 0px solid #900;
+		width: 150px;
+		height: 40px;
+	}
+
+	.v-nativebutton-unselected {
+		.v-nativebutton-caption {
+			font-size: 15px;
+			font-family: 'Telex', sans-serif;
+			color: rgb(33, 152, 168);
+		}
+		background: white;
+		border: 0px solid #900;
+		width: 150px;
+		height: 40px;
+	}
 }

@@ -20,9 +20,13 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
+
+import org.eclipse.persistence.annotations.Index;
 
 /**
  * Customer entity.
@@ -31,6 +35,10 @@ import javax.persistence.Version;
 public class Customer {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	protected int id;
+
+	@Index(unique = true)
 	@Column(name = "CUSTOMER_ID")
 	protected String shortName;
 
@@ -102,7 +110,24 @@ public class Customer {
 		this.version = version;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
