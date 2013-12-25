@@ -3,7 +3,7 @@ package com.krycha.vaadin.example.gui;
 import com.krycha.vaadin.example.gui.elements.Content;
 import com.krycha.vaadin.example.gui.elements.Footer;
 import com.krycha.vaadin.example.gui.elements.Header;
-import com.krycha.vaadin.example.gui.elements.menu.Menu;
+import com.krycha.vaadin.example.gui.elements.menu.MenuEvent;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.VerticalLayout;
@@ -21,6 +21,7 @@ public class MainView extends VerticalLayout implements View {
 	}
 
 	private void buildMainArea() {
+		setSizeFull();
 		header = new Header();
 		content = new Content();
 		footer = new Footer();
@@ -28,6 +29,9 @@ public class MainView extends VerticalLayout implements View {
 		addComponent(header);
 		addComponent(content);
 		addComponent(footer);
+
+		setExpandRatio(content, 1);
+		content.setSizeFull();
 	}
 
 	@Override
@@ -35,7 +39,7 @@ public class MainView extends VerticalLayout implements View {
 		content.enter(event);
 	}
 
-	public Menu getMenu() {
-		return content.getMenu();
+	public void addMenuListener(MenuEvent menuEvent) {
+		content.getMenu().addMenuListener(menuEvent);
 	}
 }

@@ -32,7 +32,7 @@ public class KpiUI extends UI {
 		navigator = new Navigator(this, this);
 
 		MainView mainView = new MainView();
-		mainView.getMenu().addMenuListener(new MenuEvent() {
+		mainView.addMenuListener(new MenuEvent() {
 			@Override
 			public void menuClick(MenuElement selection) {
 				navigator.navigateTo(MAIN_NAV + "/" + selection.getItemName());
