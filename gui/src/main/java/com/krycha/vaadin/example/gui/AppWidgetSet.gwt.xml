@@ -31,4 +31,6 @@
 
 
 
+
+    <inherits name="org.vaadin.alump.fancylayouts.gwt.FancyLayoutsWidgetset" />
 </module>
