@@ -13,6 +13,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.Reindeer;
 
 public class Content extends CustomComponent implements View {
 
@@ -39,6 +40,8 @@ public class Content extends CustomComponent implements View {
 	public Content() {
 		buildMainLayout();
 		setCompositionRoot(mainLayout);
+
+		panel.addStyleName(Reindeer.PANEL_LIGHT);
 
 		menuViews.put(DEFAULT_NAV, new WelcomeView());
 		for (MenuElement menu : MenuElement.values()) {
@@ -83,23 +86,24 @@ public class Content extends CustomComponent implements View {
 		mainLayout.setWidth("100%");
 		mainLayout.setHeight("100%");
 		mainLayout.setMargin(true);
-		
+		mainLayout.setSpacing(true);
+
 		// top-level component properties
 		setWidth("100.0%");
 		setHeight("100.0%");
-		
+
 		// menu
 		menu = new Menu();
 		menu.setImmediate(false);
 		menu.setWidth("-1px");
 		menu.setHeight("-1px");
 		mainLayout.addComponent(menu);
-		
+
 		// panel
 		panel = buildPanel();
 		mainLayout.addComponent(panel);
 		mainLayout.setExpandRatio(panel, 1.0f);
-		
+
 		return mainLayout;
 	}
 
@@ -107,10 +111,11 @@ public class Content extends CustomComponent implements View {
 	private Panel buildPanel() {
 		// common part: create layout
 		panel = new Panel();
+		panel.setStyleName("contentpanel");
 		panel.setImmediate(false);
 		panel.setWidth("100.0%");
 		panel.setHeight("100.0%");
-		
+
 		// verticalPanelLayout
 		verticalPanelLayout = new VerticalLayout();
 		verticalPanelLayout.setImmediate(false);
@@ -118,7 +123,7 @@ public class Content extends CustomComponent implements View {
 		verticalPanelLayout.setHeight("100.0%");
 		verticalPanelLayout.setMargin(false);
 		panel.setContent(verticalPanelLayout);
-		
+
 		return panel;
 	}
 }

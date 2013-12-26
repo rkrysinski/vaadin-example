@@ -9,14 +9,17 @@
   /* Include all the styles from the reindeer theme */
   @include reindeer;
 
+  $darkblue : #587794;
+  $light : white;
+
 	.v-nativebutton-selected {
 		.v-nativebutton-caption {
 			font-size: 15px;
 			font-family: 'Telex', sans-serif;
 			font-weight: bold;
-			color: white;
+			color: $light;
 		}
-		background: rgb(50, 203, 224);
+		background: $darkblue;
 		border: 0px solid #900;
 		width: 150px;
 		height: 40px;
@@ -26,11 +29,32 @@
 		.v-nativebutton-caption {
 			font-size: 15px;
 			font-family: 'Telex', sans-serif;
-			color: rgb(33, 152, 168);
+			color: $darkblue;
 		}
-		background: white;
+		background: $light;
 		border: 0px solid #900;
 		width: 150px;
 		height: 40px;
+	}
+
+	.v-nativebutton-unselected:hover {
+		border: 2px solid $darkblue;
+		font-weight: bold;
+	}
+
+	.v-panel-contentpanel {
+		background: $light;
+	}
+
+	.v-verticallayout-headertext {
+		background: $light;
+	}
+
+	.v-verticallayout-headermargin {
+		background: $darkblue;
+	}
+
+	.v-horizontallayout-footertext {
+		background: $light;
 	}
 }

@@ -7,7 +7,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
-import com.vaadin.ui.themes.Reindeer;
 
 public class Footer extends CustomComponent {
 
@@ -32,8 +31,6 @@ public class Footer extends CustomComponent {
 		setCompositionRoot(mainLayout);
 
 		mailto.setResource(new ExternalResource("mailto:rkrysinski@gmail.com?subject=KPI%20Tool"));
-		mailto.addStyleName(Reindeer.LABEL_H2);
-		madeBy.addStyleName(Reindeer.LABEL_H2);
 
 	}
 
@@ -41,24 +38,26 @@ public class Footer extends CustomComponent {
 	private HorizontalLayout buildMainLayout() {
 		// common part: create layout
 		mainLayout = new HorizontalLayout();
+		mainLayout.setStyleName("footertext");
 		mainLayout.setImmediate(false);
 		mainLayout.setWidth("100%");
-		mainLayout.setHeight("-1px");
+		mainLayout.setHeight("25px");
 		mainLayout.setMargin(false);
-
+		mainLayout.setSpacing(true);
+		
 		// top-level component properties
 		setWidth("100.0%");
-		setHeight("-1px");
-
+		setHeight("25px");
+		
 		// madeBy
 		madeBy = new Label();
 		madeBy.setImmediate(false);
 		madeBy.setWidth("-1px");
 		madeBy.setHeight("-1px");
-		madeBy.setValue("Made by: ");
+		madeBy.setValue("Made by:  ");
 		mainLayout.addComponent(madeBy);
-		mainLayout.setComponentAlignment(madeBy, new Alignment(6));
-
+		mainLayout.setComponentAlignment(madeBy, new Alignment(34));
+		
 		// mailto
 		mailto = new Link();
 		mailto.setCaption("Roman Krysinski");
@@ -66,7 +65,8 @@ public class Footer extends CustomComponent {
 		mailto.setWidth("-1px");
 		mailto.setHeight("-1px");
 		mainLayout.addComponent(mailto);
-
+		mainLayout.setComponentAlignment(mailto, new Alignment(33));
+		
 		return mainLayout;
 	}
 
