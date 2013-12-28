@@ -42,12 +42,12 @@ public class Customer {
 
 	@Index(unique = true)
 	@Column(name = "CUSTOMER_ID")
-	@Size(min = 3, max = 10)
 	@NotNull
-	protected String shortName = "";
+	@Size(min = 3, max = 10)
+	protected String shortName;
 
 	@Size(min = 0, max = 10)
-	protected String description = "";
+	protected String description;
 
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 	protected List<Incident> incidents = new ArrayList<Incident>();
@@ -59,6 +59,9 @@ public class Customer {
 	 * @return the shortName
 	 */
 	public String getShortName() {
+		if (shortName == null) {
+			return "";
+		}
 		return shortName;
 	}
 
@@ -74,6 +77,9 @@ public class Customer {
 	 * @return the description
 	 */
 	public String getDescription() {
+		if (description == null) {
+			return "";
+		}
 		return description;
 	}
 

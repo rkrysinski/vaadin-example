@@ -7,6 +7,7 @@ import com.krycha.vaadin.example.entity.Customer;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.server.ErrorMessage;
+import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
@@ -18,6 +19,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Window;
+import java.sql.SQLIntegrityConstraintViolationException;
+import javax.persistence.PersistenceException;
+import org.apache.derby.iapi.reference.SQLState;
 
 public class EditFormWindow extends Window implements Button.ClickListener {
 
@@ -75,29 +79,39 @@ public class EditFormWindow extends Window implements Button.ClickListener {
 						fireEvent(new EditorSavedEvent<Customer>(this, bean));
 					} catch (Exception e) {
 						System.out.println(e.getClass().getName());
+						e.printStackTrace();
+						//TODO: SQLState.LANG_DUPLICATE_KEY_CONSTRAINT;
+						//  +
+						// http://demo.vaadin.com/book-examples-vaadin7/book#application.errors.error-indicator.form
 					}
+					close();
 				} else {
-					System.out.println("Some fields are not valid!");
-					return;
+					showErrorMessage();
 				}
 			} catch (CommitException e) {
-				for (Field<?> field : binder.getFields()) {
-					ErrorMessage errMsg = ((AbstractField<?>) field).getErrorMessage();
-					if (errMsg != null) {
-						error.setValue("Error in " + field.getCaption() + ": "
-								+ errMsg.getFormattedHtmlMessage());
-						error.setVisible(true);
-						break;
-					}
-				}
+				System.out.println("CommitException: " + e.getClass().getName());
+				showErrorMessage();
 			}
 		} else if (event.getButton() == cancelButton) {
 			binder.discard();
+			close();
 		}
-		close();
 	}
 
-    public void addListener(EditorSavedListener<?> listener) {
+    private void showErrorMessage() {
+		for (Field<?> field : binder.getFields()) {
+			ErrorMessage errMsg = ((AbstractField<?>) field).getErrorMessage();
+			if (errMsg != null) {
+				error.setValue("Error in " + field.getCaption() + ": "
+						+ errMsg.getFormattedHtmlMessage());
+				error.setComponentError(new UserError(error.getValue()));
+				error.setVisible(true);
+				break;
+			}
+		}
+	}
+
+	public void addListener(EditorSavedListener<?> listener) {
         try {
             Method method = EditorSavedListener.class.getDeclaredMethod(
                     "editorSaved", new Class[] { EditorSavedEvent.class });
