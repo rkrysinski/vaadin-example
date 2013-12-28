@@ -20,6 +20,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.eclipse.persistence.annotations.Index;
 
@@ -35,9 +37,12 @@ public class Measurement {
 
 	@Index(unique = true)
 	@Column(name = "KPI_ID")
-	protected String shortName;
+	@Size(min = 3, max = 10)
+	@NotNull
+	protected String shortName = "";
 
-	protected String description;
+	@Size(min = 0, max = 10)
+	protected String description = "";
 
 	@Version
 	private long version;

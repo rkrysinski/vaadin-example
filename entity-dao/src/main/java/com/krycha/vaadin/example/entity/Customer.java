@@ -25,6 +25,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.eclipse.persistence.annotations.Index;
 
@@ -40,9 +42,12 @@ public class Customer {
 
 	@Index(unique = true)
 	@Column(name = "CUSTOMER_ID")
-	protected String shortName;
+	@Size(min = 3, max = 10)
+	@NotNull
+	protected String shortName = "";
 
-	protected String description;
+	@Size(min = 0, max = 10)
+	protected String description = "";
 
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
 	protected List<Incident> incidents = new ArrayList<Incident>();

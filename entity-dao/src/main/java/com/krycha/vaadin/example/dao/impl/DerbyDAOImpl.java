@@ -114,6 +114,8 @@ public class DerbyDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
 			em.remove(toRemove);
 		} catch (NoResultException e) {
 			// fall through, return null
+		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			em.getTransaction().commit();
 			em.close();
@@ -123,10 +125,10 @@ public class DerbyDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
 	public void wipeOut() {
 		List<Customer> customers = getAllCustomers();
 		for (Customer cust : customers) {
-			remove(Customer.class, cust.getShortName());
+			remove(Customer.class, cust.getId());
 		}
 		for (Measurement kpi : getAllMeasurements()) {
-			remove(Measurement.class, kpi.getShortName());
+			remove(Measurement.class, kpi.getId());
 		}
 	}
 }

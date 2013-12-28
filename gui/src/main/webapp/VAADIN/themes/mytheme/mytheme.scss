@@ -42,6 +42,44 @@
 		font-weight: bold;
 	}
 
+	.v-nativebutton-crudbutton {
+		background: $light;
+		border: 0px solid #900;
+		.v-icon {
+			margin-right: 0px;
+		}
+	}
+
+	.v-nativebutton-crudbutton-add {
+		.v-icon:hover {
+			background-image: url('icons/add_selected_24px.png');
+		}
+	}
+
+	.v-nativebutton-crudbutton-delete {
+		.v-icon:hover {
+			background-image: url('icons/delete_selected_24px.png');
+		}
+	}
+
+	.v-nativebutton-crudbutton-delete[disabled] {
+		.v-icon {
+			background-image: url('icons/delete_disabled_24px.png');
+		}
+	}
+
+	.v-nativebutton-crudbutton-edit {
+		.v-icon:hover {
+			background-image: url('icons/edit_selected_24px.png');
+		}
+	}
+
+	.v-nativebutton-crudbutton-edit[disabled] {
+		.v-icon {
+			background-image: url('icons/edit_disabled_24px.png');
+		}
+	}
+
 	.v-panel-contentpanel {
 		background: $light;
 	}

@@ -2,7 +2,6 @@ package com.krycha.vaadin.example.dao.impl;
 
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -26,13 +25,14 @@ public class DerbyDAOImplTest {
 
 		derbyImpl.wipeOut();
 
-		for (String kpiName : Arrays.asList("kpi1","kpi2","kpi3")) {
+		for (int i = 0; i < 100; i++) {
+			String kpiName = "kpi" + i;
 			Measurement kpi = new Measurement();
 			kpi.setShortName(kpiName);
 			kpi.setDescription("Description " + kpiName);
 			derbyImpl.addMeasurement(kpi);
-		}
-		for (String customerName : Arrays.asList("cust1", "cust2", "cust3")) {
+
+			String customerName = "customer" + i;
 			Customer cust = new Customer();
 			cust.setShortName(customerName);
 			cust.setDescription("Description: " + customerName);

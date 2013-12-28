@@ -46,7 +46,7 @@ public class AdminView extends CustomComponent {
 		label_1.setImmediate(false);
 		label_1.setWidth("-1px");
 		label_1.setHeight("-1px");
-		label_1.setValue("AdminView");
+		label_1.setValue("Not implemented.");
 		mainLayout.addComponent(label_1);
 		
 		return mainLayout;
