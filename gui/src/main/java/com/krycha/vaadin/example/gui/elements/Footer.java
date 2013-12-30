@@ -44,20 +44,20 @@ public class Footer extends CustomComponent {
 		mainLayout.setHeight("25px");
 		mainLayout.setMargin(false);
 		mainLayout.setSpacing(true);
-		
+
 		// top-level component properties
 		setWidth("100.0%");
 		setHeight("25px");
-		
+
 		// madeBy
 		madeBy = new Label();
 		madeBy.setImmediate(false);
 		madeBy.setWidth("-1px");
 		madeBy.setHeight("-1px");
-		madeBy.setValue("Made by:  ");
+		madeBy.setValue("Designed and developed by:  ");
 		mainLayout.addComponent(madeBy);
 		mainLayout.setComponentAlignment(madeBy, new Alignment(34));
-		
+
 		// mailto
 		mailto = new Link();
 		mailto.setCaption("Roman Krysinski");
@@ -66,7 +66,7 @@ public class Footer extends CustomComponent {
 		mailto.setHeight("-1px");
 		mainLayout.addComponent(mailto);
 		mainLayout.setComponentAlignment(mailto, new Alignment(33));
-		
+
 		return mainLayout;
 	}
 

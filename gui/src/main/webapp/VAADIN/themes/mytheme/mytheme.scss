@@ -43,8 +43,8 @@
 	}
 
 	.v-nativebutton-crudbutton {
-		background: $light;
-		border: 0px solid #900;
+		background: transparent;
+		border: none !important;
 		.v-icon {
 			margin-right: 0px;
 		}
@@ -83,10 +83,4 @@
 	.v-horizontallayout-footertext {
 		background: $light;
 	}
-
-	.v-window {
-		.v-window-header {
-	  		background: $darkblue;
-		}
-    }
 }

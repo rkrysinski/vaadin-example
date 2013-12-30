@@ -62,6 +62,7 @@ public class EditFormWindow extends Window implements Button.ClickListener {
 		setModal(true);
 		setContent(layout);
 		setCaption(buildCaption());
+		setStyleName("entity");
 	}
 
 	private String buildCaption() {
