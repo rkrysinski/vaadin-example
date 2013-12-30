@@ -40,7 +40,7 @@ public class Incident {
 
 	@ManyToOne
 	@JoinColumn(name = "KPI_ID")
-	protected Measurement type;
+	protected Measurement measurement;
 
 	protected DateTime date;
 
@@ -80,18 +80,18 @@ public class Incident {
 	}
 
 	/**
-	 * @return the type
+	 * @return the measurement
 	 */
-	public Measurement getType() {
-		return type;
+	public Measurement getMeasurement() {
+		return measurement;
 	}
 
 	/**
-	 * @param type
-	 *            the type to set
+	 * @param measurement
+	 *            the measurement to set
 	 */
-	public void setType(Measurement type) {
-		this.type = type;
+	public void setMeasurement(Measurement measurement) {
+		this.measurement = measurement;
 	}
 
 	/**
@@ -146,8 +146,8 @@ public class Incident {
 	 */
 	@Override
 	public String toString() {
-		return "Incident [id=" + id + ", customer=" + customer.getShortName() + ", type="
-				+ type + ", date=" + date + ", count=" + count + ", version="
+		return "Incident [id=" + id + ", customer=" + customer.getShortName() + ", measurement="
+				+ measurement + ", date=" + date + ", count=" + count + ", version="
 				+ version + "]";
 	}
 

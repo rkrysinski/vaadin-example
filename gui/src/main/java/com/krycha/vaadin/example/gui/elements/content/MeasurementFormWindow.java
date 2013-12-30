@@ -7,8 +7,7 @@ import com.krycha.vaadin.example.entity.Measurement;
 import com.vaadin.ui.Field;
 
 public class MeasurementFormWindow extends FormWindow<Measurement> {
-
-	private static final long serialVersionUID = -3688980270973043542L;
+	private static final long serialVersionUID = -2048754645228523479L;
 
 	public MeasurementFormWindow(Measurement bean, Class<Measurement> type) {
 		super(bean, type);
