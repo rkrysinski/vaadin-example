@@ -165,6 +165,7 @@ public class CRUDBar extends CustomComponent {
 		findField.setWidth("-1px");
 		findField.setHeight("-1px");
 		horizontalLayout_2.addComponent(findField);
+		horizontalLayout_2.setComponentAlignment(findField, new Alignment(33));
 
 		return horizontalLayout_2;
 	}

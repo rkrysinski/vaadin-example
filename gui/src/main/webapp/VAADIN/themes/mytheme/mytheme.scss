@@ -29,6 +29,7 @@
 		.v-nativebutton-caption {
 			font-size: 15px;
 			font-family: 'Telex', sans-serif;
+			font-weight: bold;
 			color: $darkblue;
 		}
 		background: $light;
@@ -48,6 +49,11 @@
 		.v-icon {
 			margin-right: 0px;
 		}
+	}
+
+	.v-nativebutton-crudbutton-find {
+		background: url('icons/remove_24px.png');
+		border: none !important;
 	}
 
 	.v-nativebutton-crudbutton-add {
