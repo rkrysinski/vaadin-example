@@ -2,8 +2,8 @@ package com.krycha.vaadin.example.gui.elements.content;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.List;
 
-import com.krycha.vaadin.example.entity.Customer;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.server.ErrorMessage;
@@ -23,27 +23,30 @@ import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.log4j.Logger;
 
-public class EditFormWindow extends Window implements Button.ClickListener {
+public abstract class FormWindow<T> extends Window implements Button.ClickListener {
 
 	private static final long serialVersionUID = -7674224855345526078L;
-	private static final Logger LOG = Logger.getLogger(EditFormWindow.class);
+	private static final Logger LOG = Logger.getLogger(FormWindow.class);
+	private Class<T> type;
 	private Button saveButton;
 	private Button cancelButton;
 	private ErrorLabel error = new ErrorLabel("", ContentMode.HTML);
-	private Customer bean;
-	private BeanFieldGroup<Customer> binder;
+	protected T bean;
+	protected BeanFieldGroup<T> binder;
 
-	public EditFormWindow(Customer bean) {
+	public FormWindow(T bean, Class<T> type) {
 		super();
 		this.bean = bean;
+		this.type = type;
 
-		binder = new BeanFieldGroup<Customer>(Customer.class);
+		binder = new BeanFieldGroup<T>(this.type);
 		binder.setBuffered(false);
 		binder.setItemDataSource(this.bean);
 		FormLayout layout = new FormLayout();
 		layout.setMargin(true);
-		layout.addComponent(binder.buildAndBind("Short Name", "shortName"));
-		layout.addComponent(binder.buildAndBind("Description", "description"));
+		for (Field<?> field: getFields()) {
+			layout.addComponent(field);
+		}
 
 		error.setVisible(false);
 		layout.addComponent(error);
@@ -61,13 +64,13 @@ public class EditFormWindow extends Window implements Button.ClickListener {
 		center();
 		setModal(true);
 		setContent(layout);
-		setCaption(buildCaption());
+		setCaption(getCaption());
 		setStyleName("entity");
 	}
 
-	private String buildCaption() {
-        return String.format("%s", bean.getShortName());
-	}
+	public abstract List<Field<?>> getFields();
+
+	public abstract String getCaption();
 
 	@Override
 	public void buttonClick(ClickEvent event) {
@@ -76,7 +79,7 @@ public class EditFormWindow extends Window implements Button.ClickListener {
 				try {
 					binder.commit();
 					error.clearError();
-					fireEvent(new EditorSavedEvent<Customer>(this, bean));
+					fireEvent(new EditorSavedEvent<T>(this, bean));
 					Notification.show("Success!");
 					close();
 				} catch (CommitException e) {

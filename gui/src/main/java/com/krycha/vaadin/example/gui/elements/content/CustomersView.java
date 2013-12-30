@@ -5,8 +5,8 @@ import org.vaadin.dialogs.ConfirmDialog;
 import com.krycha.vaadin.example.entity.Customer;
 import com.krycha.vaadin.example.gui.KpiUI;
 import com.krycha.vaadin.example.gui.elements.bar.CRUDBar;
-import com.krycha.vaadin.example.gui.elements.content.EditFormWindow.EditorSavedEvent;
-import com.krycha.vaadin.example.gui.elements.content.EditFormWindow.EditorSavedListener;
+import com.krycha.vaadin.example.gui.elements.content.FormWindow.EditorSavedEvent;
+import com.krycha.vaadin.example.gui.elements.content.FormWindow.EditorSavedListener;
 import com.vaadin.addon.jpacontainer.EntityItem;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
@@ -51,17 +51,14 @@ public class CustomersView extends CustomComponent {
 		buildMainLayout();
 		setCompositionRoot(mainLayout);
 
-		customers = JPAContainerFactory.make(Customer.class,
-				KpiUI.PERSISTENCE_UNIT);
+		customers = JPAContainerFactory.make(Customer.class, KpiUI.PERSISTENCE_UNIT);
 		customers.setAutoCommit(true);
 		customersTable.setContainerDataSource(customers);
-		customersTable.setVisibleColumns(new Object[] { "shortName",
-				"description" });
+		customersTable.setVisibleColumns(new Object[] { "shortName", "description" });
 		customersTable.setSelectable(true);
 		customersTable.setImmediate(true);
 
-		customersTable
-				.addValueChangeListener(new Property.ValueChangeListener() {
+		customersTable.addValueChangeListener(new Property.ValueChangeListener() {
 					private static final long serialVersionUID = -1996101670641224537L;
 
 					@Override
@@ -89,7 +86,7 @@ public class CustomersView extends CustomComponent {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				final Customer item = new Customer();
-				EditFormWindow window = new EditFormWindow(item);
+				CustomerFormWindow window = new CustomerFormWindow(item, Customer.class);
 				window.addListener(new EditorSavedListener<Customer>() {
 					private static final long serialVersionUID = 8507451157193715182L;
 
@@ -108,9 +105,8 @@ public class CustomersView extends CustomComponent {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
-				final EntityItem<Customer> item = customers
-						.getItem(customersTable.getValue());
-				EditFormWindow window = new EditFormWindow(item.getEntity());
+				final EntityItem<Customer> item = customers.getItem(customersTable.getValue());
+				CustomerFormWindow window = new CustomerFormWindow(item.getEntity(), Customer.class);
 				window.addListener(new EditorSavedListener<Customer>() {
 					private static final long serialVersionUID = 8507451157193715182L;
 
@@ -195,8 +191,8 @@ public class CustomersView extends CustomComponent {
 		customers.setApplyFiltersImmediately(false);
 		customers.removeAllContainerFilters();
 		if (textFilter != null && !textFilter.equals("")) {
-			Or or = new Or(new Like("shortName", textFilter + "%", false),
-					new Like("description", textFilter + "%", false));
+			Or or = new Or(new Like("shortName", "%" + textFilter + "%", false),
+					new Like("description", "%" + textFilter + "%", false));
 			customers.addContainerFilter(or);
 		}
 		customers.applyFilters();
