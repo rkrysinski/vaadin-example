@@ -41,7 +41,7 @@ public class Measurement {
 	@NotNull
 	protected String shortName = "";
 
-	@Size(min = 0, max = 10)
+	@Size(min = 0, max = 300)
 	protected String description = "";
 
 	@Version

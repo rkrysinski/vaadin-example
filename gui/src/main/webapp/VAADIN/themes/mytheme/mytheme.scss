@@ -62,21 +62,9 @@
 		}
 	}
 
-	.v-nativebutton-crudbutton-delete[disabled] {
-		.v-icon {
-			background-image: url('icons/delete_disabled_24px.png');
-		}
-	}
-
 	.v-nativebutton-crudbutton-edit {
 		.v-icon:hover {
 			background-image: url('icons/edit_selected_24px.png');
-		}
-	}
-
-	.v-nativebutton-crudbutton-edit[disabled] {
-		.v-icon {
-			background-image: url('icons/edit_disabled_24px.png');
 		}
 	}
 
@@ -95,4 +83,10 @@
 	.v-horizontallayout-footertext {
 		background: $light;
 	}
+
+	.v-window {
+		.v-window-header {
+	  		background: $darkblue;
+		}
+    }
 }

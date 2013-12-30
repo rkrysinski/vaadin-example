@@ -46,7 +46,7 @@ public class Customer {
 	@Size(min = 3, max = 10)
 	protected String shortName;
 
-	@Size(min = 0, max = 10)
+	@Size(min = 0, max = 300)
 	protected String description;
 
 	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)

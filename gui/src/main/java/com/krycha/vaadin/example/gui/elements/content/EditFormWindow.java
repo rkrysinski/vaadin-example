@@ -19,16 +19,17 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Window;
-import java.sql.SQLIntegrityConstraintViolationException;
-import javax.persistence.PersistenceException;
+import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
+import org.apache.log4j.Logger;
 
 public class EditFormWindow extends Window implements Button.ClickListener {
 
 	private static final long serialVersionUID = -7674224855345526078L;
+	private static final Logger LOG = Logger.getLogger(EditFormWindow.class);
 	private Button saveButton;
 	private Button cancelButton;
-	private Label error = new Label("", ContentMode.HTML);
+	private ErrorLabel error = new ErrorLabel("", ContentMode.HTML);
 	private Customer bean;
 	private BeanFieldGroup<Customer> binder;
 
@@ -70,26 +71,36 @@ public class EditFormWindow extends Window implements Button.ClickListener {
 	@Override
 	public void buttonClick(ClickEvent event) {
 		if (event.getButton() == saveButton) {
-			try {
-				if (binder.isValid()) {
+			if (binder.isValid()) {
+				try {
 					binder.commit();
-					Notification.show("OK!");
-					error.setVisible(false);
-					try {
-						fireEvent(new EditorSavedEvent<Customer>(this, bean));
-					} catch (Exception e) {
-						System.out.println(e.getClass().getName());
-						e.printStackTrace();
-						//TODO: SQLState.LANG_DUPLICATE_KEY_CONSTRAINT;
-						//  +
-						// http://demo.vaadin.com/book-examples-vaadin7/book#application.errors.error-indicator.form
-					}
+					error.clearError();
+					fireEvent(new EditorSavedEvent<Customer>(this, bean));
+					Notification.show("Success!");
 					close();
-				} else {
+				} catch (CommitException e) {
 					showErrorMessage();
+				} catch (Exception e) {
+					String errorMessage = null;
+					Throwable rootCause = e.getCause();
+					while (rootCause.getCause() != null) {
+						rootCause = rootCause.getCause();
+					}
+					if (rootCause instanceof StandardException) {
+						StandardException sqlException = (StandardException)rootCause;
+						if (SQLState.LANG_DUPLICATE_KEY_CONSTRAINT.equals(sqlException.getSQLState())) {
+							errorMessage = "Error: "
+									+ bean.getClass().getSimpleName().toLowerCase()
+									+ " already exists";
+						}
+					}
+					if (errorMessage == null) {
+						errorMessage = "Internal error: please check logs for details";
+						LOG.error("Error committing form for bean: " + bean.toString(), e);
+					}
+					error.setError(errorMessage);
 				}
-			} catch (CommitException e) {
-				System.out.println("CommitException: " + e.getClass().getName());
+			} else {
 				showErrorMessage();
 			}
 		} else if (event.getButton() == cancelButton) {
@@ -102,10 +113,8 @@ public class EditFormWindow extends Window implements Button.ClickListener {
 		for (Field<?> field : binder.getFields()) {
 			ErrorMessage errMsg = ((AbstractField<?>) field).getErrorMessage();
 			if (errMsg != null) {
-				error.setValue("Error in " + field.getCaption() + ": "
+				error.setError("Error in " + field.getCaption() + ": "
 						+ errMsg.getFormattedHtmlMessage());
-				error.setComponentError(new UserError(error.getValue()));
-				error.setVisible(true);
 				break;
 			}
 		}
@@ -145,4 +154,30 @@ public class EditFormWindow extends Window implements Button.ClickListener {
     public interface EditorSavedListener<T> extends Serializable {
         public void editorSaved(EditorSavedEvent<T> event);
     }
+
+    public static class ErrorLabel extends Label {
+
+		private static final long serialVersionUID = 2119299267850318384L;
+
+		public ErrorLabel() {
+            setVisible(false);
+        }
+
+		public ErrorLabel(String content, ContentMode contentMode) {
+			super(content, contentMode);
+		}
+
+		public void setError(String error) {
+            setValue(error);
+            setComponentError(new UserError("error"));
+            setVisible(true);
+        }
+
+        public void clearError() {
+            setValue(null);
+            setComponentError(new UserError("error"));
+            setVisible(false);
+        }
+    }
+
 }
