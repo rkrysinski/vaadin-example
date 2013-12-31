@@ -14,7 +14,6 @@
 
 package com.krycha.vaadin.example.entity;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -36,7 +35,6 @@ public class Measurement {
 	protected int id;
 
 	@Index(unique = true)
-	@Column(name = "KPI_ID")
 	@Size(min = 3, max = 10)
 	@NotNull
 	protected String shortName = "";

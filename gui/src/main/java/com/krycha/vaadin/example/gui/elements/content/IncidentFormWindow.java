@@ -16,8 +16,10 @@ public class IncidentFormWindow extends FormWindow<Incident> {
 	@Override
 	public List<Field<?>> getFields() {
 		List<Field<?>> fields = new ArrayList<Field<?>>();
-		fields.add(binder.buildAndBind("Customer", "customer"));
-		fields.add(binder.buildAndBind("Measurement", "measurement"));
+		fields.add(binder.buildAndBind("customer"));
+		fields.add(binder.buildAndBind("measurement"));
+		fields.add(binder.buildAndBind("date"));
+		fields.add(binder.buildAndBind("count"));
 		return fields;
 	}
 

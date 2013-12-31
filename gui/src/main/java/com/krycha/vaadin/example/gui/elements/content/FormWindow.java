@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import com.krycha.vaadin.example.entity.Customer;
+import com.krycha.vaadin.example.entity.Measurement;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
+import com.vaadin.data.fieldgroup.DefaultFieldGroupFieldFactory;
 import com.vaadin.data.fieldgroup.FieldGroup.CommitException;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.UserError;
@@ -22,6 +25,7 @@ import com.vaadin.ui.Window;
 import org.apache.derby.iapi.error.StandardException;
 import org.apache.derby.iapi.reference.SQLState;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 public abstract class FormWindow<T> extends Window implements Button.ClickListener {
 
@@ -40,6 +44,23 @@ public abstract class FormWindow<T> extends Window implements Button.ClickListen
 		this.type = type;
 
 		binder = new BeanFieldGroup<T>(this.type);
+		binder.setFieldFactory(new DefaultFieldGroupFieldFactory() {
+			private static final long serialVersionUID = 8661439259768671014L;
+
+			@SuppressWarnings({ "rawtypes", "unchecked" })
+			@Override
+			public <F extends Field> F createField(Class<?> type,
+					Class<F> fieldType) {
+				if (type.isAssignableFrom(Customer.class)) {
+					return (F) new CustomerSelector();
+				} else if (type.isAssignableFrom(Measurement.class)) {
+					return (F) new MeasurementSelector();
+				} else if (type.isAssignableFrom(DateTime.class)) {
+					return (F) new DateSelector();
+				}
+				return super.createField(type, fieldType);
+			}
+		});
 		binder.setBuffered(false);
 		binder.setItemDataSource(this.bean);
 		FormLayout layout = new FormLayout();

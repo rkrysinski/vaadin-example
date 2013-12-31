@@ -128,9 +128,13 @@ public class IncidentsView extends CustomComponent {
 			public void buttonClick(ClickEvent event) {
 				EntityItem<Incident> item = incidents.getItem(incidentsTable.getValue());
 				Incident entity = item.getEntity();
+				String captionString = "";
+				if (entity.getCustomer() != null) {
+					captionString = String.format("Delete \"%s-%s-%s\"?", entity.getCustomer().getShortName(),
+							entity.getMeasurement().getShortName(), entity.getDate());
+				}
 				ConfirmDialog.show(UI.getCurrent(), "Please Confirm!",
-						String.format("Delete \"%s-%s-%s\"?", entity.getCustomer().getShortName(),
-								entity.getMeasurement().getShortName(), entity.getDate()), "Yes", "No",
+						captionString, "Yes", "No",
 						new ConfirmDialog.Listener() {
 							private static final long serialVersionUID = -7014811035850138105L;
 
