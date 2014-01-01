@@ -45,6 +45,10 @@ public class CRUDBar extends CustomComponent {
 		add.addStyleName("crudbutton-add");
 		edit.addStyleName("crudbutton-edit");
 		delete.addStyleName("crudbutton-delete");
+
+		add.setDescription("add");
+		edit.setDescription("edit");
+		delete.setDescription("delete");
 	}
 
 	public void addButtonListener(ClickListener clickListener) {
