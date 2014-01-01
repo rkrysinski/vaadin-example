@@ -46,7 +46,7 @@ public class WelcomeView extends CustomComponent {
 		welcome.setImmediate(false);
 		welcome.setWidth("-1px");
 		welcome.setHeight("-1px");
-		welcome.setValue("Welcome string");
+		welcome.setValue("Welcome!");
 		mainLayout.addComponent(welcome);
 
 		return mainLayout;
