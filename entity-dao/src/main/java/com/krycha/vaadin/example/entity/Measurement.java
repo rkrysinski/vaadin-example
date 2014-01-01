@@ -112,8 +112,7 @@ public class Measurement {
 	 */
 	@Override
 	public String toString() {
-		return "Measurement [shortName=" + shortName + ", description="
-				+ description + ", version=" + version + "]";
+		return shortName;
 	}
 
 }

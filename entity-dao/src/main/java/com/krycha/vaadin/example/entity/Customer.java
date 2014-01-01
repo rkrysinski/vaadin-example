@@ -141,9 +141,7 @@ public class Customer {
 	 */
 	@Override
 	public String toString() {
-		return "Customer [shortName=" + shortName + ", description="
-				+ description + ", incidents=" + incidents + ", version="
-				+ version + "]";
+		return shortName;
 	}
 
 }

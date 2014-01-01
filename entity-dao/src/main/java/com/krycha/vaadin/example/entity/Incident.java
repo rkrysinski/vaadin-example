@@ -19,7 +19,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 import javax.persistence.Version;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.joda.time.DateTime;
@@ -43,12 +45,16 @@ public class Incident {
 	protected Measurement measurement;
 
 	@NotNull
-	protected DateTime date;
+	protected DateTime date = new DateTime();
 
-	protected int count;
+	@Min(0)
+	protected Integer count = new Integer(0);
 
 	@Version
 	private long version;
+
+	@Transient
+	public static final String DATE_FORMAT = "MMM yyyy";
 
 	/**
 	 * @return the id
@@ -113,7 +119,7 @@ public class Incident {
 	/**
 	 * @return the count
 	 */
-	public int getCount() {
+	public Integer getCount() {
 		return count;
 	}
 
@@ -121,7 +127,7 @@ public class Incident {
 	 * @param count
 	 *            the count to set
 	 */
-	public void setCount(int count) {
+	public void setCount(Integer count) {
 		this.count = count;
 	}
 

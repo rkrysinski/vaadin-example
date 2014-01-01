@@ -57,6 +57,8 @@ public abstract class FormWindow<T> extends Window implements Button.ClickListen
 					return (F) new MeasurementSelector();
 				} else if (type.isAssignableFrom(DateTime.class)) {
 					return (F) new DateSelector();
+				} else if (type.isAssignableFrom(Integer.class)) {
+					return (F) new IntSelector();
 				}
 				return super.createField(type, fieldType);
 			}
