@@ -66,6 +66,7 @@ public abstract class FormWindow<T> extends Window implements Button.ClickListen
 		binder.setBuffered(false);
 		binder.setItemDataSource(this.bean);
 		FormLayout layout = new FormLayout();
+		layout.setImmediate(true);
 		layout.setMargin(true);
 		for (Field<?> field: getFields()) {
 			layout.addComponent(field);

@@ -88,17 +88,17 @@ public class FindTextField extends CustomComponent {
 		// common part: create layout
 		mainLayout = new AbsoluteLayout();
 		mainLayout.setImmediate(false);
-		mainLayout.setWidth("225px");
+		mainLayout.setWidth("240px");
 		mainLayout.setHeight("24px");
 
 		// top-level component properties
-		setWidth("225px");
+		setWidth("240px");
 		setHeight("24px");
 
 		// findField
 		findField = new TextField();
 		findField.setImmediate(false);
-		findField.setWidth("225px");
+		findField.setWidth("240px");
 		findField.setHeight("-1px");
 		mainLayout.addComponent(findField, "top:0.0px;left:0.0px;");
 
