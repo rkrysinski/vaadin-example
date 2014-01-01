@@ -14,27 +14,33 @@
 
 package com.krycha.vaadin.example.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Version;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.eclipse.persistence.annotations.Convert;
+import org.eclipse.persistence.annotations.Converter;
 import org.joda.time.DateTime;
+
+import com.krycha.vaadin.example.entity.converter.JodaDateTimeConverter;
 
 /**
  * Incident entity.
- * TODO:
- * @Table(
-    uniqueConstraints=
-        @UniqueConstraint(columnNames={"customer", "measurement", "date"})
-)
  */
 @Entity
+@Table(uniqueConstraints={
+		@UniqueConstraint(columnNames={"CUSTOMER_ID", "MEASUREMENT_ID", "DATE"})
+})
 public class Incident {
 
 	@Id
@@ -43,14 +49,19 @@ public class Incident {
 
 	@NotNull
 	@ManyToOne
+	@JoinColumn(name = "CUSTOMER_ID")
 	protected Customer customer;
 
 	@NotNull
 	@ManyToOne
+	@JoinColumn(name = "MEASUREMENT_ID")
 	protected Measurement measurement;
 
 	@NotNull
-	protected DateTime date = new DateTime();
+	@Column(name = "DATE", columnDefinition = "TIMESTAMP")
+	@Converter(name = "dateTimeConverter", converterClass = JodaDateTimeConverter.class)
+	@Convert("dateTimeConverter")
+	protected DateTime date = new DateTime().withTimeAtStartOfDay().withDayOfMonth(1);
 
 	@Min(0)
 	protected Integer count = new Integer(0);
@@ -118,7 +129,7 @@ public class Incident {
 	 *            the date to set
 	 */
 	public void setDate(DateTime date) {
-		this.date = date;
+		this.date = date.withTimeAtStartOfDay().withDayOfMonth(1);
 	}
 
 	/**
