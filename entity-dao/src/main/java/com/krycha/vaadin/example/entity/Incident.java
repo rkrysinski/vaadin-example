@@ -28,6 +28,11 @@ import org.joda.time.DateTime;
 
 /**
  * Incident entity.
+ * TODO:
+ * @Table(
+    uniqueConstraints=
+        @UniqueConstraint(columnNames={"customer", "measurement", "date"})
+)
  */
 @Entity
 public class Incident {
