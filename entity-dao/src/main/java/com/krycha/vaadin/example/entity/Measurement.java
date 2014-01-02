@@ -14,6 +14,7 @@
 
 package com.krycha.vaadin.example.entity;
 
+import javax.jdo.annotations.Extension;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -21,8 +22,6 @@ import javax.persistence.Id;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.eclipse.persistence.annotations.Index;
 
 /**
  * Measurements entity.
@@ -34,7 +33,7 @@ public class Measurement {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	protected int id;
 
-	@Index(unique = true)
+	@Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
 	@Size(min = 3, max = 10)
 	@NotNull
 	protected String shortName = "";

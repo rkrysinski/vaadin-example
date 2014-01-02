@@ -70,7 +70,7 @@ public abstract class DAOFactory {
 	public static DAOFactory getDAOFactory(Type type) {
 		switch (type) {
 		case DERBY:
-			return new DerbyDAOFactory();
+			return new DbDAOFactory();
 		default:
 			throw new IllegalArgumentException(type + " not implemented yet!");
 		}

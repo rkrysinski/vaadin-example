@@ -32,13 +32,13 @@ import com.krycha.vaadin.example.entity.Measurement;
 /**
  *
  */
-public class DerbyDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
+public class DbDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
 
-	private static final String PERSISTENCE_UNIT_NAME = "derbydao";
+	private static final String PERSISTENCE_UNIT_NAME = "gaedao";
 	private static final EntityManagerFactory EMF_OBJ = Persistence
 			.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 
-	public DerbyDAOImpl() {
+	public DbDAOImpl() {
 	}
 
 	public EntityManager get() {

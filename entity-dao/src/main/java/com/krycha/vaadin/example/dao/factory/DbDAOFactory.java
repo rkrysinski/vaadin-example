@@ -17,14 +17,14 @@ package com.krycha.vaadin.example.dao.factory;
 import com.krycha.vaadin.example.dao.CustomerDAO;
 import com.krycha.vaadin.example.dao.IncidentDAO;
 import com.krycha.vaadin.example.dao.MeasurementDAO;
-import com.krycha.vaadin.example.dao.impl.DerbyDAOImpl;
+import com.krycha.vaadin.example.dao.impl.DbDAOImpl;
 
 /**
  *
  */
-public class DerbyDAOFactory extends DAOFactory {
+public class DbDAOFactory extends DAOFactory {
 
-	private DerbyDAOImpl daoImpl = new DerbyDAOImpl();
+	private DbDAOImpl daoImpl = new DbDAOImpl();
 
 	/* (non-Javadoc)
 	 * @see com.krycha.vaadin.example.dao.factory.DAOFactory#getCustomerDAO()

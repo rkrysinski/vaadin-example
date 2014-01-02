@@ -17,6 +17,7 @@ package com.krycha.vaadin.example.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jdo.annotations.Extension;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,8 +27,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.eclipse.persistence.annotations.Index;
 
 /**
  * Customer entity.
@@ -39,7 +38,7 @@ public class Customer {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	protected int id;
 
-	@Index(unique = true)
+	@Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
 	@NotNull
 	@Size(min = 3, max = 10)
 	protected String shortName;
@@ -47,7 +46,7 @@ public class Customer {
 	@Size(min = 0, max = 300)
 	protected String description;
 
-	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
 	protected List<Incident> incidents = new ArrayList<Incident>();
 
 	@Version

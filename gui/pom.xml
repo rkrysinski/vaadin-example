@@ -14,6 +14,7 @@
 	<name>Vaadin Web Application</name>
 
 	<dependencies>
+		<!-- project specific jars -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>entity-dao</artifactId>
@@ -28,6 +29,7 @@
 			<artifactId>hibernate-validator</artifactId>
 			<version>4.3.1.Final</version>
 		</dependency>
+		<!-- vaadin addon jars -->
 		<dependency>
 			<groupId>com.vaadin.addon</groupId>
 			<artifactId>jpacontainer</artifactId>
@@ -38,6 +40,7 @@
 			<artifactId>confirmdialog</artifactId>
 			<version>2.0.4</version>
 		</dependency>
+		<!-- vaadin addon jars -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-server</artifactId>
@@ -48,12 +51,6 @@
 			<artifactId>vaadin-client-compiled</artifactId>
 			<version>${vaadin.version}</version>
 		</dependency>
-		<!-- Needed when using the widgetset optimizer (custom ConnectorBundleLoaderFactory).
-			For widgetset compilation, vaadin-client-compiler is automatically added
-			on the compilation classpath by vaadin-maven-plugin so normally there is
-			no need for an explicit dependency. -->
-		<!-- <dependency> <groupId>com.vaadin</groupId> <artifactId>vaadin-client-compiler</artifactId>
-			<version>${vaadin.version}</version> <scope>provided</scope> </dependency> -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-client</artifactId>
@@ -70,12 +67,30 @@
 			<artifactId>vaadin-themes</artifactId>
 			<version>${vaadin.version}</version>
 		</dependency>
+		<!-- Google App Engine Dependencies -->
+		<dependency>
+			<groupId>com.google.appengine</groupId>
+			<artifactId>appengine-api-labs</artifactId>
+			<version>${appengine.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.appengine</groupId>
+			<artifactId>appengine-api-1.0-sdk</artifactId>
+			<version>${appengine.version}</version>
+		</dependency>
+		<!-- Servlet references -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.0.1</version>
 			<scope>provided</scope>
 		</dependency>
+		<!-- <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+            <scope>provided</scope>
+        </dependency> -->
 	</dependencies>
 
 	<build>

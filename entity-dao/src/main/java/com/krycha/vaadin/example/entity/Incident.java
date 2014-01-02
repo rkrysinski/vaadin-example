@@ -28,11 +28,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import org.eclipse.persistence.annotations.Convert;
-import org.eclipse.persistence.annotations.Converter;
 import org.joda.time.DateTime;
-
-import com.krycha.vaadin.example.entity.converter.JodaDateTimeConverter;
 
 /**
  * Incident entity.
@@ -59,8 +55,6 @@ public class Incident {
 
 	@NotNull
 	@Column(name = "DATE", columnDefinition = "TIMESTAMP")
-	@Converter(name = "dateTimeConverter", converterClass = JodaDateTimeConverter.class)
-	@Convert("dateTimeConverter")
 	protected DateTime date = new DateTime().withTimeAtStartOfDay().withDayOfMonth(1);
 
 	@Min(0)

@@ -16,9 +16,13 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<vaadin.version>7.1.9</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+		<appengine.version>1.8.8</appengine.version>
 		<powermock.version>1.5</powermock.version>
 		<easymock.version>3.1</easymock.version>
 		<eclipselink.version>2.0.0</eclipselink.version>
+		<!-- see https://code.google.com/p/datanucleus-appengine/wiki/Compatibility -->
+		<datanucleus.appengine>2.1.2</datanucleus.appengine>
+		<datanucleus.version>3.1.0-release</datanucleus.version>
 	</properties>
 
 	<dependencyManagement>
@@ -92,6 +96,7 @@
 	</pluginRepositories>
 
 	<dependencies>
+		<!-- Junit references -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -113,6 +118,36 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<!--This plugin's configuration is used to store Eclipse m2e settings
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.datanucleus</groupId>
+										<artifactId>datanucleus-maven-plugin</artifactId>
+										<versionRange>[1.0,)</versionRange>
+										<goals>
+											<goal>enhance</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 
 </project>

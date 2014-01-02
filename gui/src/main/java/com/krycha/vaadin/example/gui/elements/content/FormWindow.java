@@ -22,8 +22,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Window;
-import org.apache.derby.iapi.error.StandardException;
-import org.apache.derby.iapi.reference.SQLState;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
@@ -110,18 +108,19 @@ public abstract class FormWindow<T> extends Window implements Button.ClickListen
 					showErrorMessage();
 				} catch (Exception e) {
 					String errorMessage = null;
-					Throwable rootCause = e.getCause();
-					while (rootCause.getCause() != null) {
-						rootCause = rootCause.getCause();
-					}
-					if (rootCause instanceof StandardException) {
-						StandardException sqlException = (StandardException)rootCause;
-						if (SQLState.LANG_DUPLICATE_KEY_CONSTRAINT.equals(sqlException.getSQLState())) {
-							errorMessage = "Error: "
-									+ bean.getClass().getSimpleName().toLowerCase()
-									+ " already exists";
-						}
-					}
+//					TODO: check what GAE throws in case where keys are duplicated
+//					Throwable rootCause = e.getCause();
+//					while (rootCause.getCause() != null) {
+//						rootCause = rootCause.getCause();
+//					}
+//					if (rootCause instanceof StandardException) {
+//						StandardException sqlException = (StandardException)rootCause;
+//						if (SQLState.LANG_DUPLICATE_KEY_CONSTRAINT.equals(sqlException.getSQLState())) {
+//							errorMessage = "Error: "
+//									+ bean.getClass().getSimpleName().toLowerCase()
+//									+ " already exists";
+//						}
+//					}
 					if (errorMessage == null) {
 						errorMessage = "Internal error: please check logs for details";
 						LOG.error("Error committing form for bean: " + bean.toString(), e);
