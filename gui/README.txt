@@ -25,5 +25,6 @@ https://vaadin.com/directory#addon/activelink
 https://vaadin.com/directory#addon/fancylayouts
 http://jouni.virtuallypreinstalled.com/Animator
 
-Mouse events
-Icons
+http://www.streamhead.com/wp-content/uploads/2010/02/pom.xml
+http://www.streamhead.com/wp-content/uploads/2011/02/Vaadin_and_App_Engine_in_5_Minutes.pdf
+https://vaadin.com/book/vaadin7/-/page/advanced.gae.html
