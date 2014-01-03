@@ -3,6 +3,8 @@ package com.krycha.vaadin.example.gui.elements.content;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.krycha.vaadin.example.entity.Customer;
 import com.krycha.vaadin.example.entity.Measurement;
@@ -22,13 +24,12 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Window;
-import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 public abstract class FormWindow<T> extends Window implements Button.ClickListener {
 
-	private static final long serialVersionUID = -7674224855345526078L;
-	private static final Logger LOG = Logger.getLogger(FormWindow.class);
+	private static final long serialVersionUID = 2527105328312484996L;
+	private static final Logger LOG = Logger.getLogger(FormWindow.class.getName());
 	private Class<T> type;
 	private Button saveButton;
 	private Button cancelButton;
@@ -123,7 +124,7 @@ public abstract class FormWindow<T> extends Window implements Button.ClickListen
 //					}
 					if (errorMessage == null) {
 						errorMessage = "Internal error: please check logs for details";
-						LOG.error("Error committing form for bean: " + bean.toString(), e);
+						LOG.log(Level.WARNING, "Error committing form for bean: " + bean.toString(), e);
 					}
 					error.setError(errorMessage);
 				}

@@ -14,12 +14,14 @@
 
 package com.krycha.vaadin.example.dao;
 
+import java.io.Serializable;
+
 import com.krycha.vaadin.example.entity.Incident;
 
 /**
  *
  */
-public interface IncidentDAO {
+public interface IncidentDAO extends Serializable {
 
 	void updateIncident(Incident incident);
 

@@ -14,6 +14,7 @@
 
 package com.krycha.vaadin.example.dao;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.krycha.vaadin.example.entity.Measurement;
@@ -21,7 +22,7 @@ import com.krycha.vaadin.example.entity.Measurement;
 /**
  *
  */
-public interface MeasurementDAO {
+public interface MeasurementDAO extends Serializable {
 
 	void addMeasurement(Measurement kpi);
 

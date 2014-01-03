@@ -14,6 +14,8 @@
 
 package com.krycha.vaadin.example.entity;
 
+import java.io.Serializable;
+
 import javax.jdo.annotations.Extension;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,7 +29,9 @@ import javax.validation.constraints.Size;
  * Measurements entity.
  */
 @Entity
-public class Measurement {
+public class Measurement implements Serializable {
+
+	private static final long serialVersionUID = 997486721740199725L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

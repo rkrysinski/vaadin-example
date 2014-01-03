@@ -34,7 +34,8 @@ import com.krycha.vaadin.example.entity.Measurement;
  */
 public class DbDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
 
-	private static final String PERSISTENCE_UNIT_NAME = "gaedao";
+	private static final long serialVersionUID = -297519583845783735L;
+	public static final String PERSISTENCE_UNIT_NAME = "gaedao";
 	private static final EntityManagerFactory EMF_OBJ = Persistence
 			.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
 

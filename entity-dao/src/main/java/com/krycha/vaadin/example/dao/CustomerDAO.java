@@ -14,6 +14,7 @@
 
 package com.krycha.vaadin.example.dao;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.krycha.vaadin.example.entity.Customer;
@@ -21,7 +22,7 @@ import com.krycha.vaadin.example.entity.Customer;
 /**
  * Customer DAO interface.
  */
-public interface CustomerDAO {
+public interface CustomerDAO extends Serializable {
 
 	/**
 	 * Get All Customers.

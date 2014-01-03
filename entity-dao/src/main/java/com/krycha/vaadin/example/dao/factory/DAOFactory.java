@@ -14,6 +14,8 @@
 
 package com.krycha.vaadin.example.dao.factory;
 
+import java.io.Serializable;
+
 import com.krycha.vaadin.example.dao.CustomerDAO;
 import com.krycha.vaadin.example.dao.IncidentDAO;
 import com.krycha.vaadin.example.dao.MeasurementDAO;
@@ -21,7 +23,9 @@ import com.krycha.vaadin.example.dao.MeasurementDAO;
 /**
  * Abstract class DAOFactory that provides DAO for Entities.
  */
-public abstract class DAOFactory {
+public abstract class DAOFactory implements Serializable {
+
+	private static final long serialVersionUID = -8862652971090540948L;
 
 	/**
 	 * Type of DAO Factory.

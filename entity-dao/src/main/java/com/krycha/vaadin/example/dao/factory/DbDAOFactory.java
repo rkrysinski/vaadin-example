@@ -24,6 +24,7 @@ import com.krycha.vaadin.example.dao.impl.DbDAOImpl;
  */
 public class DbDAOFactory extends DAOFactory {
 
+	private static final long serialVersionUID = 1146488827675277676L;
 	private DbDAOImpl daoImpl = new DbDAOImpl();
 
 	/* (non-Javadoc)

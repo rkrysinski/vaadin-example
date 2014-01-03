@@ -14,6 +14,8 @@
 
 package com.krycha.vaadin.example.entity;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -37,7 +39,9 @@ import org.joda.time.DateTime;
 @Table(uniqueConstraints={
 		@UniqueConstraint(columnNames={"CUSTOMER_ID", "MEASUREMENT_ID", "DATE"})
 })
-public class Incident {
+public class Incident implements Serializable {
+
+	private static final long serialVersionUID = -3799653359900147322L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

@@ -14,6 +14,7 @@
 
 package com.krycha.vaadin.example.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,9 @@ import javax.validation.constraints.Size;
  * Customer entity.
  */
 @Entity
-public class Customer {
+public class Customer implements Serializable {
+
+	private static final long serialVersionUID = -5814642577816427740L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

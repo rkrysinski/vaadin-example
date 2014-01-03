@@ -16,10 +16,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<vaadin.version>7.1.9</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
-		<appengine.version>1.8.8</appengine.version>
 		<powermock.version>1.5</powermock.version>
 		<easymock.version>3.1</easymock.version>
 		<eclipselink.version>2.0.0</eclipselink.version>
+		<appengine.version>1.8.8</appengine.version>
+		<appengine.application>kpi-tool</appengine.application>
 		<!-- see https://code.google.com/p/datanucleus-appengine/wiki/Compatibility -->
 		<datanucleus.appengine>2.1.2</datanucleus.appengine>
 		<datanucleus.version>3.1.0-release</datanucleus.version>
@@ -31,11 +32,6 @@
 				<groupId>joda-time</groupId>
 				<artifactId>joda-time</artifactId>
 				<version>2.3</version>
-			</dependency>
-			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.17</version>
 			</dependency>
 			<!-- Junit dependencies -->
 			<dependency>
@@ -112,8 +108,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
