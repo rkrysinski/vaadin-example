@@ -7,7 +7,7 @@
 	<context-param>
 		<description>Vaadin production mode</description>
 		<param-name>productionMode</param-name>
-		<param-value>true</param-value>
+		<param-value>false</param-value>
 	</context-param>
 	<servlet>
 		<servlet-name>Application</servlet-name>
@@ -28,7 +28,7 @@
 		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 	<session-config>
-		<session-timeout>-1</session-timeout>
+		<session-timeout>3600</session-timeout>
 	</session-config>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
