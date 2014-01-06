@@ -9,3 +9,5 @@ syntax: regexp
 ^gui/src/main/webapp/VAADIN/themes/mytheme/styles\.css$
 syntax: regexp
 .*/*.log$
+syntax: regexp
+^gui/war$
