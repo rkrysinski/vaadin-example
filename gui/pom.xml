@@ -178,8 +178,9 @@
 					<webappDirectory>${targetWarDir}/VAADIN/widgetsets</webappDirectory>
 					<hostedWebapp>${targetWarDir}/VAADIN/widgetsets</hostedWebapp>
 					<noServer>true</noServer>
-					<!-- Remove draftCompile when project is ready -->
+					<!-- Remove draftCompile when project is ready
 					<draftCompile>false</draftCompile>
+					-->
 					<compileReport>true</compileReport>
 					<style>OBF</style>
 					<strict>true</strict>
