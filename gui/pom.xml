@@ -15,8 +15,14 @@
 
 	<properties>
 		<targetWarDir>${project.build.directory}/${project.build.finalName}</targetWarDir>
-		<!-- See for details: https://code.google.com/p/appengine-maven-plugin/issues/detail?id=49 -->
+		<!-- For details see:
+			 https://code.google.com/p/appengine-maven-plugin/issues/detail?id=49
+		-->
 		<fork>false</fork>
+		<!-- This is to move gwt-unitCache from deploy directory see:
+			 https://vaadin.com/forum#!/thread/4664881
+		-->
+		<gwt.persistentunitcachedir>${project.build.directory}</gwt.persistentunitcachedir>
 	</properties>
 
 	<dependencies>
@@ -50,7 +56,7 @@
 		<dependency>
 			<groupId>com.vaadin.addon</groupId>
 			<artifactId>jpacontainer</artifactId>
-			<version>3.1.1</version>
+			<version>3.1.1-SNAPSHOT</version>
 		</dependency>
 		<!-- vaadin jars -->
 		<dependency>
@@ -179,8 +185,8 @@
 					<hostedWebapp>${targetWarDir}/VAADIN/widgetsets</hostedWebapp>
 					<noServer>true</noServer>
 					<!-- Remove draftCompile when project is ready
-					<draftCompile>false</draftCompile>
 					-->
+					<draftCompile>false</draftCompile>
 					<compileReport>true</compileReport>
 					<style>OBF</style>
 					<strict>true</strict>
@@ -238,6 +244,12 @@
 				<groupId>com.google.appengine</groupId>
 				<artifactId>appengine-maven-plugin</artifactId>
 				<version>${gae.version}</version>
+				<configuration>
+					<jvmFlags>
+					  <jvmFlag>-Xdebug</jvmFlag>
+					  <jvmFlag>-agentlib:jdwp=transport=dt_socket,address=8081,server=y,suspend=n</jvmFlag>
+					</jvmFlags>
+				</configuration>
 			</plugin>
 		</plugins>
 		<pluginManagement>
