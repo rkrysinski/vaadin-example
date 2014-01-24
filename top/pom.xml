@@ -18,7 +18,7 @@
 		<powermock.version>1.5</powermock.version>
 		<easymock.version>3.1</easymock.version>
 		<eclipselink.version>2.0.0</eclipselink.version>
-		<gae.version>1.8.8</gae.version>
+		<gae.version>1.8.9</gae.version>
 		<gae.app.version>1</gae.app.version>
 		<gae.application>kpi-tool</gae.application>
 		<gae.datanucleus>3.1.0-release</gae.datanucleus>

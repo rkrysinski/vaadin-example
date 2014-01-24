@@ -56,7 +56,7 @@ public class MeasurementSelector extends CustomField<Measurement> {
     }
 
 	private void setMeasurement(Measurement newValue) {
-		measurement.setValue(newValue != null ? newValue.getId() : null);
+		measurement.setValue(newValue != null ? newValue.getKey() : null);
 	}
 
 	@Override

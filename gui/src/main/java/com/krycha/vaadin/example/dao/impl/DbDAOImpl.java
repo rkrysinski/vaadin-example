@@ -126,10 +126,10 @@ public class DbDAOImpl implements CustomerDAO, IncidentDAO, MeasurementDAO {
 	public void wipeOut() {
 		List<Customer> customers = getAllCustomers();
 		for (Customer cust : customers) {
-			remove(Customer.class, cust.getId());
+			remove(Customer.class, cust.getKey());
 		}
 		for (Measurement kpi : getAllMeasurements()) {
-			remove(Measurement.class, kpi.getId());
+			remove(Measurement.class, kpi.getKey());
 		}
 	}
 }

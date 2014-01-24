@@ -25,6 +25,8 @@ import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import com.google.appengine.api.datastore.Key;
+
 /**
  * Measurements entity.
  */
@@ -34,8 +36,8 @@ public class Measurement implements Serializable {
 	private static final long serialVersionUID = 997486721740199725L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	protected int id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	protected Key key;
 
 	@Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
 	@Size(min = 3, max = 10)
@@ -96,16 +98,16 @@ public class Measurement implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
-		return id;
+	public Key getKey() {
+		return key;
 	}
 
 	/**
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(int id) {
-		this.id = id;
+	public void setKey(Key id) {
+		this.key = id;
 	}
 
 	/*

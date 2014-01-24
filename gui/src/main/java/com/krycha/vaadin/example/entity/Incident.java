@@ -18,10 +18,10 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -32,33 +32,33 @@ import javax.validation.constraints.NotNull;
 
 import org.joda.time.DateTime;
 
+import com.google.appengine.api.datastore.Key;
+
 /**
  * Incident entity.
  */
 @Entity
 @Table(uniqueConstraints={
-		@UniqueConstraint(columnNames={"CUSTOMER_ID", "MEASUREMENT_ID", "DATE"})
+		@UniqueConstraint(columnNames={"customer", "measurement", "date"})
 })
 public class Incident implements Serializable {
 
 	private static final long serialVersionUID = -3799653359900147322L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	protected int id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	protected Key key;
 
 	@NotNull
-	@ManyToOne
-	@JoinColumn(name = "CUSTOMER_ID")
+	@ManyToOne(fetch = FetchType.LAZY)
 	protected Customer customer;
 
 	@NotNull
-	@ManyToOne
-	@JoinColumn(name = "MEASUREMENT_ID")
+	@ManyToOne(fetch = FetchType.LAZY)
 	protected Measurement measurement;
 
 	@NotNull
-	@Column(name = "DATE", columnDefinition = "TIMESTAMP")
+	@Column(columnDefinition = "TIMESTAMP")
 	protected DateTime date = new DateTime().withTimeAtStartOfDay().withDayOfMonth(1);
 
 	@Min(0)
@@ -73,16 +73,16 @@ public class Incident implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
-		return id;
+	public Key getKey() {
+		return key;
 	}
 
 	/**
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(int id) {
-		this.id = id;
+	public void setKey(Key id) {
+		this.key = id;
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class Incident implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "Incident [id=" + id + ", customer=" + customer.getShortName() + ", measurement="
+		return "Incident [key=" + key + ", customer=" + customer.getShortName() + ", measurement="
 				+ measurement + ", date=" + date + ", count=" + count + ", version="
 				+ version + "]";
 	}

@@ -1,0 +1,1670 @@
+### Eclipse Workspace Patch 1.0
+#P jpacontainer-addon
+Index: src/main/java/com/vaadin/addon/jpacontainer/provider/CachingMutableLocalEntityProvider.java
+===================================================================
+--- src/main/java/com/vaadin/addon/jpacontainer/provider/CachingMutableLocalEntityProvider.java	(revision 26198)
++++ src/main/java/com/vaadin/addon/jpacontainer/provider/CachingMutableLocalEntityProvider.java	(working copy)
+@@ -37,7 +37,7 @@
+  * <p>
+  * If you are going to edit the entities returned by the container, you should
+  * check the {@link #setCloneCachedEntities(boolean) } before continuing.
+- * 
++ *
+  * @author Petter Holmström (Vaadin Ltd)
+  * @since 1.0
+  */
+@@ -48,7 +48,7 @@
+ 
+     /**
+      * Creates a new <code>CachingMutableLocalEntityProvider</code>.
+-     * 
++     *
+      * @param entityClass
+      *            the entity class (must not be null).
+      * @param entityManager
+@@ -63,7 +63,7 @@
+      * Creates a new <code>CachingLocalEntityProvider</code>. The entity manager
+      * must be set using
+      * {@link #setEntityManager(javax.persistence.EntityManager) }.
+-     * 
++     *
+      * @param entityClass
+      *            the entity class (must not be null).
+      */
+@@ -71,7 +71,11 @@
+         super(entityClass);
+     }
+ 
+-    public void flush() {
++    public CachingMutableLocalEntityProvider(Class<T> entityClass, String persistenceUnitName) {
++		super(entityClass, persistenceUnitName);
++	}
++
++	public void flush() {
+         cachingSupport.flush();
+     }
+ 
+@@ -192,14 +196,14 @@
+ 
+     /*
+      * (non-Javadoc)
+-     * 
++     *
+      * @see com.vaadin.addon.jpacontainer.EntityProvider#refresh()
+      */
+     @Override
+     public void refresh() {
+         cachingSupport.clear();
+     }
+-    
++
+     public T refreshEntity(T entity) {
+         cachingSupport.clear();
+         return super.refreshEntity(entity);
+Index: src/main/java/com/vaadin/addon/jpacontainer/provider/MutableLocalEntityProvider.java
+===================================================================
+--- src/main/java/com/vaadin/addon/jpacontainer/provider/MutableLocalEntityProvider.java	(revision 26198)
++++ src/main/java/com/vaadin/addon/jpacontainer/provider/MutableLocalEntityProvider.java	(working copy)
+@@ -37,7 +37,7 @@
+  * <p>
+  * This entity provider fires {@link EntityProviderChangeEvent}s every time an
+  * entity is added, updated or deleted.
+- * 
++ *
+  * @author Petter Holmström (Vaadin Ltd)
+  * @since 1.0
+  */
+@@ -50,7 +50,7 @@
+      * Creates a new <code>MutableLocalEntityProvider</code>. The entity manager
+      * must be set using
+      * {@link #setEntityManager(javax.persistence.EntityManager) }.
+-     * 
++     *
+      * @param entityClass
+      *            the entity class (must not be null).
+      */
+@@ -60,7 +60,7 @@
+ 
+     /**
+      * Creates a new <code>MutableLocalEntityProvider</code>.
+-     * 
++     *
+      * @param entityClass
+      *            the entity class (must not be null).
+      * @param entityManager
+@@ -71,13 +71,17 @@
+         super(entityClass, entityManager);
+     }
+ 
+-    private boolean transactionsHandled = true;
++    public MutableLocalEntityProvider(Class<T> entityClass, String persistenceUnitName) {
++		super(entityClass, persistenceUnitName);
++	}
+ 
++	private boolean transactionsHandled = true;
++
+     /**
+      * Specifies whether the entity provider should handle transactions itself
+      * or whether they should be handled outside (e.g. if declarative
+      * transactions are used).
+-     * 
++     *
+      * @param transactionsHandled
+      *            true to handle the transactions internally, false to rely on
+      *            external transaction handling.
+@@ -89,7 +93,7 @@
+     /**
+      * Returns whether the entity provider is handling transactions internally
+      * (the default) or relies on external transaction handling.
+-     * 
++     *
+      * @return true if transactions are handled internally, false if not.
+      */
+     public boolean isTransactionsHandledByProvider() {
+@@ -101,14 +105,15 @@
+      * <code>operation</code> will be executed inside a transaction that is
+      * commited after the operation is completed. Otherwise,
+      * <code>operation</code> will just be executed.
+-     * 
++     * @param em
++     *
+      * @param operation
+      *            the operation to run (must not be null).
+      */
+-    protected void runInTransaction(Runnable operation) {
++    protected void doRunInTransaction(EntityManager em, Runnable operation) {
+         assert operation != null : "operation must not be null";
+         if (isTransactionsHandledByProvider()) {
+-            EntityTransaction et = getEntityManager().getTransaction();
++            EntityTransaction et = em.getTransaction();
+             if (et.isActive()) {
+                 // The transaction has been started outside of this method
+                 // and should also be committed/rolled back outside of
+@@ -130,43 +135,60 @@
+         }
+     }
+ 
++    protected void runInTransaction(Runnable operation) {
++    	EntityManager em = getEntityManager();
++    	try {
++    		doRunInTransaction(em, operation);
++    	} finally {
++    		doCloseEntityManager(em);
++        }
++    }
++
+     @SuppressWarnings("unchecked")
+     public T addEntity(final T entity) {
+         assert entity != null;
+         final Object[] entityA = new Object[1];
+-        runInTransaction(new Runnable() {
++        final EntityManager em = getEntityManager();
++        try {
++        	doRunInTransaction(em, new Runnable() {
+ 
+-            public void run() {
+-                EntityManager em = getEntityManager();
+-                entityA[0] = em.merge(entity);
+-                em.flush();
+-            }
+-        });
+-        T dEntity = detachEntity((T) entityA[0]);
+-        fireEntityProviderChangeEvent(new EntitiesAddedEvent<T>(this, dEntity));
+-        return dEntity;
++	            public void run() {
++	                entityA[0] = em.merge(entity);
++	                em.flush();
++	            }
++	        });
++	        T dEntity = doDetachEntity(em, (T) entityA[0]);
++	        fireEntityProviderChangeEvent(new EntitiesAddedEvent<T>(this, dEntity));
++	        return dEntity;
++        } finally {
++        	doCloseEntityManager(em);
++        }
+     }
+ 
+     @SuppressWarnings("unchecked")
+     public void removeEntity(final Object entityId) {
+         assert entityId != null;
+         final Object[] entityA = new Object[1];
+-        runInTransaction(new Runnable() {
++        final EntityManager em = getEntityManager();
++        try {
++        	doRunInTransaction(em, new Runnable() {
+ 
+-            public void run() {
+-                EntityManager em = getEntityManager();
+-                T entity = em.find(getEntityClassMetadata().getMappedClass(),
+-                        entityId);
+-                if (entity != null) {
+-                    em.remove(em.merge(entity));
+-                    em.flush();
+-                    entityA[0] = detachEntity(entity);
+-                }
+-            }
+-        });
+-        if (entityA[0] != null) {
+-            fireEntityProviderChangeEvent(new EntitiesRemovedEvent<T>(this,
+-                    (T) entityA[0]));
++	            public void run() {
++	                T entity = em.find(getEntityClassMetadata().getMappedClass(),
++	                        entityId);
++	                if (entity != null) {
++	                    em.remove(em.merge(entity));
++	                    em.flush();
++	                    entityA[0] = doDetachEntity(em, entity);
++	                }
++	            }
++	        });
++	        if (entityA[0] != null) {
++	            fireEntityProviderChangeEvent(new EntitiesRemovedEvent<T>(this,
++	                    (T) entityA[0]));
++	        }
++        } finally {
++        	doCloseEntityManager(em);
+         }
+     }
+ 
+@@ -174,17 +196,21 @@
+     public T updateEntity(final T entity) {
+         assert entity != null : "entity must not be null";
+         final Object[] entityA = new Object[1];
+-        runInTransaction(new Runnable() {
++        final EntityManager em = getEntityManager();
++        try {
++        	doRunInTransaction(em, new Runnable() {
+ 
+-            public void run() {
+-                EntityManager em = getEntityManager();
+-                entityA[0] = em.merge(entity);
+-                em.flush();
+-            }
+-        });
+-        T dEntity = detachEntity((T) entityA[0]);
+-        fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(this, dEntity));
+-        return dEntity;
++	            public void run() {
++	                entityA[0] = em.merge(entity);
++	                em.flush();
++	            }
++	        });
++	        T dEntity = doDetachEntity(em, (T) entityA[0]);
++	        fireEntityProviderChangeEvent(new EntitiesUpdatedEvent<T>(this, dEntity));
++	        return dEntity;
++	    } finally {
++	    	doCloseEntityManager(em);
++	    }
+     }
+ 
+     @SuppressWarnings("unchecked")
+@@ -194,36 +220,40 @@
+         assert entityId != null : "entityId must not be null";
+         assert propertyName != null : "propertyName must not be null";
+         final Object[] entityA = new Object[1];
+-        runInTransaction(new Runnable() {
++        final EntityManager em = getEntityManager();
++        try {
++        	doRunInTransaction(em, new Runnable() {
+ 
+-            public void run() {
+-                EntityManager em = getEntityManager();
+-                T entity = em.find(getEntityClassMetadata().getMappedClass(),
+-                        entityId);
+-                if (entity != null) {
+-                    // make sure we are working with the latest versions
+-                    em.refresh(entity);
+-                    getEntityClassMetadata().setPropertyValue(entity,
+-                            propertyName, propertyValue);
+-                    // re-attach also referenced entities to the persistence
+-                    // context
+-                    entity = em.merge(entity);
+-                    em.flush();
+-                    entityA[0] = detachEntity(entity);
+-                }
+-            }
+-        });
+-        if (entityA[0] != null) {
+-            fireEntityProviderChangeEvent(new EntityPropertyUpdatedEvent(this,
+-                    propertyName, entityA));
+-        }
++	            public void run() {
++	                T entity = em.find(getEntityClassMetadata().getMappedClass(),
++	                        entityId);
++	                if (entity != null) {
++	                    // make sure we are working with the latest versions
++	                    em.refresh(entity);
++	                    getEntityClassMetadata().setPropertyValue(entity,
++	                            propertyName, propertyValue);
++	                    // re-attach also referenced entities to the persistence
++	                    // context
++	                    entity = em.merge(entity);
++	                    em.flush();
++	                    entityA[0] = doDetachEntity(em, entity);
++	                }
++	            }
++	        });
++	        if (entityA[0] != null) {
++	            fireEntityProviderChangeEvent(new EntityPropertyUpdatedEvent(this,
++	                    propertyName, entityA));
++	        }
++	    } finally {
++	    	doCloseEntityManager(em);
++	    }
+     }
+ 
+     /*
+-     * Transient note: Listeners (read: JPAContainers) should re attach themselves when deserialized 
++     * Transient note: Listeners (read: JPAContainers) should re attach themselves when deserialized
+      */
+     transient private LinkedList<WeakReference<EntityProviderChangeListener<T>>> listeners;
+-    
++
+     private LinkedList<WeakReference<EntityProviderChangeListener<T>>> getListeners() {
+         if(listeners == null) {
+             listeners = new LinkedList<WeakReference<EntityProviderChangeListener<T>>>();
+@@ -276,7 +306,7 @@
+     /**
+      * Sends <code>event</code> to all registered listeners if
+      * {@link #isFireEntityProviderChangeEvent() } is true.
+-     * 
++     *
+      * @param event
+      *            the event to send (must not be null).
+      */
+Index: src/main/java/com/vaadin/addon/jpacontainer/provider/LocalEntityProvider.java
+===================================================================
+--- src/main/java/com/vaadin/addon/jpacontainer/provider/LocalEntityProvider.java	(revision 26198)
++++ src/main/java/com/vaadin/addon/jpacontainer/provider/LocalEntityProvider.java	(working copy)
+@@ -26,7 +26,9 @@
+ import java.util.Map;
+ 
+ import javax.persistence.EntityManager;
++import javax.persistence.EntityManagerFactory;
+ import javax.persistence.EntityNotFoundException;
++import javax.persistence.Persistence;
+ import javax.persistence.TransactionRequiredException;
+ import javax.persistence.TypedQuery;
+ import javax.persistence.criteria.CriteriaBuilder;
+@@ -74,12 +76,12 @@
+  * and collections within the entities should be configured to be fetched
+  * eagerly, though)</li>
+  * </ul>
+- * 
++ *
+  * This entity provider does not perform very well, as every method call results
+  * in at least one query being sent to the entity manager. If speed is desired,
+  * {@link CachingLocalEntityProvider} should be used instead. However, this
+  * entity provider consumes less memory than the caching provider.
+- * 
++ *
+  * @author Petter Holmström (Vaadin Ltd)
+  * @since 1.0
+  */
+@@ -89,11 +91,12 @@
+     private transient EntityManager entityManager;
+     private EntityClassMetadata<T> entityClassMetadata;
+     private boolean entitiesDetached = true;
++    private boolean closeEntityManager = false;
+     private EntityManagerProvider entityManagerProvider = null;
+ 
+     /**
+      * Creates a new <code>LocalEntityProvider</code>.
+-     * 
++     *
+      * @param entityClass
+      *            the entity class (must not be null).
+      * @param entityManager
+@@ -106,12 +109,33 @@
+     }
+ 
+     /**
++     * Creates a new <code>LocalEntityProvider</code>.
++     *
++     * @param entityClass
++     *            the entity class (must not be null).
++     * @param entityManager
++     *            the entity manager to use (must not be null).
++     */
++    public LocalEntityProvider(Class<T> entityClass, final String persistenceUnitName) {
++        this(entityClass);
++        this.entityManager = null;
++        this.closeEntityManager = true;
++        this.entityManagerProvider = new EntityManagerProvider() {
++			private static final long serialVersionUID = 7852860686424634984L;
++        	@Override
++        	public EntityManager getEntityManager() {
++        		return Persistence.createEntityManagerFactory(persistenceUnitName).createEntityManager();
++        	}
++        };
++    }
++
++    /**
+      * Creates a new <code>LocalEntityProvider</code>. The entity manager or an
+      * entity manager provider must be set using
+      * {@link #setEntityManager(javax.persistence.EntityManager)} or
+      * {@link #setEntityManagerProvider(com.vaadin.addon.jpacontainer.EntityManagerProvider)}
+      * respectively.
+-     * 
++     *
+      * @param entityClass
+      *            the entity class (must not be null).
+      */
+@@ -124,7 +148,7 @@
+     /**
+      * Creates a new <code>LocalEntityProvider</code> with the specified
+      * {@link EntityManagerProvider}.
+-     * 
++     *
+      * @param entityClass
+      * @param entityManagerProvider
+      */
+@@ -163,7 +187,7 @@
+      * Sets the {@link EntityManagerProvider} that is used to find the current
+      * entity manager unless set using
+      * {@link #setEntityManager(javax.persistence.EntityManager)}
+-     * 
++     *
+      * @param entityManagerProvider
+      *            The entity manager provider to set.
+      */
+@@ -176,7 +200,7 @@
+      * Gets the {@link EntityManagerProvider} that is used to find the current
+      * entity manager unless one is specified using
+      * {@link #setEntityManager(javax.persistence.EntityManager)}.
+-     * 
++     *
+      * @return the entity manager provider,
+      */
+     public EntityManagerProvider getEntityManagerProvider() {
+@@ -185,7 +209,7 @@
+ 
+     /**
+      * Sets the entity manager.
+-     * 
++     *
+      * @param entityManager
+      *            the entity manager to set.
+      */
+@@ -195,7 +219,7 @@
+ 
+     /**
+      * Gets the metadata for the entity class.
+-     * 
++     *
+      * @return the metadata (never null).
+      */
+     protected EntityClassMetadata<T> getEntityClassMetadata() {
+@@ -205,7 +229,7 @@
+     /**
+      * Gets the entity manager. If no entity manager has been set, the one
+      * returned by the registered entity manager provider is returned.
+-     * 
++     *
+      * @return the entity manager.
+      */
+     public EntityManager getEntityManager() {
+@@ -217,22 +241,23 @@
+ 
+     /**
+      * Gets the entity manager.
+-     * 
++     *
+      * @return the entity manager (never null).
+      * @throws IllegalStateException
+      *             if no entity manager is set.
+      */
+     protected EntityManager doGetEntityManager() throws IllegalStateException {
+-        if (getEntityManager() == null) {
++    	EntityManager em = getEntityManager();
++        if (em == null) {
+             throw new IllegalStateException("No entity manager specified");
+         }
+-        return getEntityManager();
++        return em;
+     }
+ 
+     /**
+      * Creates a copy of <code>original</code> and adds an entry for the primary
+      * key to the end of the list.
+-     * 
++     *
+      * @param original
+      *            the original list of sorting instructions (must not be null,
+      *            but may be empty).
+@@ -285,7 +310,7 @@
+      * Translates SortBy instances, which possibly contain nested properties
+      * (e.g. name.firstName, name.lastName) into Order instances which can be
+      * used in a CriteriaQuery.
+-     * 
++     *
+      * @param sortBy
+      *            the SortBy instance to translate
+      * @param swapSortOrder
+@@ -335,28 +360,28 @@
+         return entityClassMetadata.getProperty(propertyId).getPropertyKind() == PropertyKind.EMBEDDED;
+     }
+ 
+-    /**
+-     * Creates a filtered query that does not do any sorting.
+-     * 
+-     * @see #createFilteredQuery(com.vaadin.addon.jpacontainer.EntityContainer,
+-     *      java.util.List, com.vaadin.data.Container.Filter, java.util.List,
+-     *      boolean)
+-     * @param fieldsToSelect
+-     *            the fields to select (must not be null).
+-     * @param filter
+-     *            the filter to apply, or null if no filters should be applied.
+-     * @return the query (never null).
+-     */
+-    protected TypedQuery<Object> createUnsortedFilteredQuery(
+-            EntityContainer<T> container, List<String> fieldsToSelect,
+-            Filter filter) {
+-        return createFilteredQuery(container, fieldsToSelect, filter, null,
+-                false);
+-    }
++//    /**
++//     * Creates a filtered query that does not do any sorting.
++//     *
++//     * @see #createFilteredQuery(com.vaadin.addon.jpacontainer.EntityContainer,
++//     *      java.util.List, com.vaadin.data.Container.Filter, java.util.List,
++//     *      boolean)
++//     * @param fieldsToSelect
++//     *            the fields to select (must not be null).
++//     * @param filter
++//     *            the filter to apply, or null if no filters should be applied.
++//     * @return the query (never null).
++//     */
++//    protected TypedQuery<Object> createUnsortedFilteredQuery(
++//            EntityContainer<T> container, List<String> fieldsToSelect,
++//            Filter filter) {
++//        return createFilteredQuery(container, fieldsToSelect, filter, null,
++//                false);
++//    }
+ 
+     /**
+      * Creates a filtered, optionally sorted, query.
+-     * 
++     *
+      * @param fieldsToSelect
+      *            the fields to select (must not be null).
+      * @param filter
+@@ -371,12 +396,14 @@
+      * @return the query (never null).
+      */
+     protected TypedQuery<Object> createFilteredQuery(
+-            EntityContainer<T> container, List<String> fieldsToSelect,
+-            Filter filter, List<SortBy> sortBy, boolean swapSortOrder) {
++    		EntityManager em, EntityContainer<T> container,
++    		List<String> fieldsToSelect, Filter filter, List<SortBy> sortBy,
++    		boolean swapSortOrder) {
+         assert fieldsToSelect != null : "fieldsToSelect must not be null";
+         assert sortBy == null || !sortBy.isEmpty() : "sortBy must be either null or non-empty";
++        assert em == null : "entitymanager must not be null";
+ 
+-        CriteriaBuilder cb = doGetEntityManager().getCriteriaBuilder();
++        CriteriaBuilder cb = em.getCriteriaBuilder();
+         CriteriaQuery<Object> query = cb.createQuery();
+         Root<T> root = query.from(entityClassMetadata.getMappedClass());
+ 
+@@ -416,16 +443,35 @@
+                     fieldsToSelect.get(0)));
+         }
+         tellDelegateQueryHasBeenBuilt(container, cb, query);
+-        return doGetEntityManager().createQuery(query);
++        return em.createQuery(query);
+     }
+ 
+-    protected boolean doContainsEntity(EntityContainer<T> container,
+-            Object entityId, Filter filter) {
++    public TypedQuery<Object> createFilteredQuery(EntityContainer<T> container,
++    		List<String> fieldsToSelect, Filter filter, List<SortBy> sortBy,
++    		boolean swapSortOrder) {
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return createFilteredQuery(em, container, fieldsToSelect, filter, sortBy, swapSortOrder);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
++    }
++
++    protected boolean doContainsEntity(EntityContainer<T> container, Object entityId, Filter filter) {
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doContainsEntity(em, container, entityId, filter);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
++    }
++    protected boolean doContainsEntity(EntityManager em,
++    		EntityContainer<T> container, Object entityId, Filter filter) {
+         assert entityId != null : "entityId must not be null";
+         String entityIdPropertyName = getEntityClassMetadata()
+                 .getIdentifierProperty().getName();
+ 
+-        CriteriaBuilder cb = doGetEntityManager().getCriteriaBuilder();
++        CriteriaBuilder cb = em.getCriteriaBuilder();
+         CriteriaQuery<Long> query = cb.createQuery(Long.class);
+         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
+ 
+@@ -459,32 +505,81 @@
+             query.select(cb.count(root.get(entityIdPropertyName)));
+         }
+         tellDelegateQueryHasBeenBuilt(container, cb, query);
+-        TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
++        TypedQuery<Long> tq = em.createQuery(query);
+         return tq.getSingleResult() == 1;
+     }
+ 
+     public boolean containsEntity(EntityContainer<T> container,
+             Object entityId, Filter filter) {
+-        return doContainsEntity(container, entityId, filter);
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doContainsEntity(em, container, entityId, filter);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
+     }
+ 
++    /**
++     * Detaches <code>entity</code> from the entity manager. If
++     * <code>entity</code> is null, then null is returned. If
++     * {@link #isEntitiesDetached() } is false, <code>entity</code> is returned
++     * directly.
++     *
++     * @param entity
++     *            the entity to detach.
++     * @return the detached entity.
++     */
++    protected T doDetachEntity(EntityManager em, T entity) {
++        if (entity == null) {
++            return null;
++        }
++        if (isEntitiesDetached()) {
++        	em.detach(entity);
++        }
++        return entity;
++    }
++
+     protected T doGetEntity(Object entityId) {
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetEntity(em, entityId);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
++    }
++    protected T doGetEntity(EntityManager em, Object entityId) {
+         assert entityId != null : "entityId must not be null";
+-        T entity = doGetEntityManager().find(
+-                getEntityClassMetadata().getMappedClass(), entityId);
+-        return detachEntity(entity);
++        T entity = em.find(getEntityClassMetadata().getMappedClass(), entityId);
++        return doDetachEntity(em, entity);
+     }
+ 
+     public T getEntity(EntityContainer<T> container, Object entityId) {
+-        return doGetEntity(entityId);
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetEntity(em, entityId);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
+     }
+ 
+-    protected Object doGetEntityIdentifierAt(EntityContainer<T> container,
+-            Filter filter, List<SortBy> sortBy, int index) {
++    public T getEntity(Object entityId) {
++    	return getEntity(null, entityId);
++    }
++
++    protected Object doGetEntityIdentifierAt(EntityContainer<T> container, Filter filter, List<SortBy> sortBy, int index) {
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetEntityIdentifierAt(em, container, filter, sortBy, index);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
++    }
++    protected Object doGetEntityIdentifierAt(EntityManager em,
++    		EntityContainer<T> container, Filter filter, List<SortBy> sortBy, int index) {
+         if (sortBy == null) {
+             sortBy = Collections.emptyList();
+         }
+-        TypedQuery<Object> query = createFilteredQuery(container,
++        TypedQuery<Object> query = createFilteredQuery(em, container,
+                 Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
+                         .getName()), filter, addPrimaryKeyToSortList(sortBy),
+                 false);
+@@ -500,14 +595,29 @@
+ 
+     public Object getEntityIdentifierAt(EntityContainer<T> container,
+             Filter filter, List<SortBy> sortBy, int index) {
+-        return doGetEntityIdentifierAt(container, filter, sortBy, index);
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetEntityIdentifierAt(em, container, filter, sortBy, index);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
+     }
+ 
+-    protected int doGetEntityCount(EntityContainer<T> container, Filter filter) {
++    protected int doGetEntityCount(EntityContainer<T> container,
++    		Filter filter) {
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetEntityCount(em, container, filter);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
++    }
++    protected int doGetEntityCount(EntityManager em, EntityContainer<T> container,
++    		Filter filter) {
+         String entityIdPropertyName = getEntityClassMetadata()
+                 .getIdentifierProperty().getName();
+ 
+-        CriteriaBuilder cb = doGetEntityManager().getCriteriaBuilder();
++        CriteriaBuilder cb = em.getCriteriaBuilder();
+         CriteriaQuery<Long> query = cb.createQuery(Long.class);
+         Root<T> root = query.from(getEntityClassMetadata().getMappedClass());
+ 
+@@ -539,16 +649,31 @@
+             query.select(cb.count(root.get(entityIdPropertyName)));
+         }
+         tellDelegateQueryHasBeenBuilt(container, cb, query);
+-        TypedQuery<Long> tq = doGetEntityManager().createQuery(query);
++        TypedQuery<Long> tq = em.createQuery(query);
+         return tq.getSingleResult().intValue();
+     }
+ 
+     public int getEntityCount(EntityContainer<T> container, Filter filter) {
+-        return doGetEntityCount(container, filter);
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetEntityCount(em, container, filter);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
+     }
+ 
+     protected Object doGetFirstEntityIdentifier(EntityContainer<T> container,
+             Filter filter, List<SortBy> sortBy) {
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetFirstEntityIdentifier(em, container, filter, sortBy);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
++    }
++
++    protected Object doGetFirstEntityIdentifier(EntityManager em, EntityContainer<T> container,
++            Filter filter, List<SortBy> sortBy) {
+         if (sortBy == null) {
+             sortBy = Collections.emptyList();
+         }
+@@ -563,7 +688,7 @@
+         // .getName() + "." + p);
+         // }
+         // }
+-        TypedQuery<Object> query = createFilteredQuery(container, keyFields,
++        TypedQuery<Object> query = createFilteredQuery(em, container, keyFields,
+                 filter, addPrimaryKeyToSortList(sortBy), false);
+         query.setMaxResults(1);
+         List<?> result = query.getResultList();
+@@ -576,32 +701,51 @@
+ 
+     public Object getFirstEntityIdentifier(EntityContainer<T> container,
+             Filter filter, List<SortBy> sortBy) {
+-        return doGetFirstEntityIdentifier(container, filter, sortBy);
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetFirstEntityIdentifier(em, container, filter, sortBy);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
+     }
+ 
+     protected Object doGetLastEntityIdentifier(EntityContainer<T> container,
+             Filter filter, List<SortBy> sortBy) {
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetLastEntityIdentifier(em, container, filter, sortBy);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
++    }
++    protected Object doGetLastEntityIdentifier(EntityManager em, EntityContainer<T> container,
++            Filter filter, List<SortBy> sortBy) {
+         if (sortBy == null) {
+             sortBy = Collections.emptyList();
+         }
+         // The last 'true' parameter switches the sort order -> the last row is
+         // the first result.
+-        TypedQuery<Object> query = createFilteredQuery(container,
+-                Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
+-                        .getName()), filter, addPrimaryKeyToSortList(sortBy),
+-                true);
+-        query.setMaxResults(1);
+-        List<?> result = query.getResultList();
+-        if (result.isEmpty()) {
+-            return null;
+-        } else {
+-            return result.get(0);
+-        }
++	        TypedQuery<Object> query = createFilteredQuery(em, container,
++	                Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
++	                        .getName()), filter, addPrimaryKeyToSortList(sortBy),
++	                true);
++	        query.setMaxResults(1);
++	        List<?> result = query.getResultList();
++	        if (result.isEmpty()) {
++	            return null;
++	        } else {
++	            return result.get(0);
++	        }
+     }
+ 
+     public Object getLastEntityIdentifier(EntityContainer<T> container,
+             Filter filter, List<SortBy> sortBy) {
+-        return doGetLastEntityIdentifier(container, filter, sortBy);
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetLastEntityIdentifier(em, container, filter, sortBy);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
+     }
+ 
+     /**
+@@ -611,7 +755,7 @@
+      * the entity previous to the entity identified by <code>entityId</code>.
+      * <code>filter</code> and <code>sortBy</code> is used to define and limit
+      * the list of entities to be used for determining the sibling.
+-     * 
++     *
+      * @param entityId
+      *            the identifier of the entity whose sibling to retrieve (must
+      *            not be null).
+@@ -627,15 +771,21 @@
+      */
+     protected Object getSibling(EntityContainer<T> container, Object entityId,
+             Filter filter, List<SortBy> sortBy, boolean backwards) {
+-        TypedQuery<Object> query = createSiblingQuery(container, entityId,
+-                filter, sortBy, backwards);
+-        query.setMaxResults(1);
+-        List<?> result = query.getResultList();
+-        if (result.size() != 1) {
+-            return null;
+-        } else {
+-            return result.get(0);
+-        }
++
++    	EntityManager em = doGetEntityManager();
++    	try {
++	        TypedQuery<Object> query = createSiblingQuery(em, container, entityId,
++	                filter, sortBy, backwards);
++	        query.setMaxResults(1);
++	        List<?> result = query.getResultList();
++	        if (result.size() != 1) {
++	            return null;
++	        } else {
++	            return result.get(0);
++	        }
++    	} finally  {
++    		doCloseEntityManager(em);
++    	}
+     }
+ 
+     /**
+@@ -644,7 +794,7 @@
+      * with the entity next to the entity identified by <code>entityId</code>.
+      * If <code>backwards</code> is false, the query will begin with the entity
+      * prior to the entity identified by <code>entityId</code>.
+-     * 
++     *
+      * @param entityId
+      *            the identifier of the entity whose sibling to retrieve (must
+      *            not be null).
+@@ -659,7 +809,7 @@
+      * @return the query that will return the sibling and all the subsequent
+      *         entities unless limited.
+      */
+-    protected TypedQuery<Object> createSiblingQuery(
++    protected TypedQuery<Object> createSiblingQuery(EntityManager em,
+             EntityContainer<T> container, Object entityId, Filter filter,
+             List<SortBy> sortBy, boolean backwards) {
+         assert entityId != null : "entityId must not be null";
+@@ -724,12 +874,22 @@
+         } else {
+             queryFilter = new And(filter, limitingFilter);
+         }
+-        TypedQuery<Object> query = createFilteredQuery(container,
++        TypedQuery<Object> query = createFilteredQuery(em, container,
+                 Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
+                         .getName()), queryFilter, sortBy, backwards);
+         return query;
+     }
+ 
++    protected TypedQuery<Object> createSiblingQuery(EntityContainer<T> container,
++    		Object entityId, Filter filter, List<SortBy> sortBy, boolean backwards) {
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return createSiblingQuery(em, container, entityId, filter, sortBy, backwards);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
++
++    }
+     protected Object doGetNextEntityIdentifier(EntityContainer<T> container,
+             Object entityId, Filter filter, List<SortBy> sortBy) {
+         if (sortBy == null) {
+@@ -758,26 +918,6 @@
+                 sortBy);
+     }
+ 
+-    /**
+-     * Detaches <code>entity</code> from the entity manager. If
+-     * <code>entity</code> is null, then null is returned. If
+-     * {@link #isEntitiesDetached() } is false, <code>entity</code> is returned
+-     * directly.
+-     * 
+-     * @param entity
+-     *            the entity to detach.
+-     * @return the detached entity.
+-     */
+-    protected T detachEntity(T entity) {
+-        if (entity == null) {
+-            return null;
+-        }
+-        if (isEntitiesDetached()) {
+-            getEntityManager().detach(entity);
+-        }
+-        return entity;
+-    }
+-
+     public boolean isEntitiesDetached() {
+         return entitiesDetached;
+     }
+@@ -789,11 +929,20 @@
+ 
+     protected List<Object> doGetAllEntityIdentifiers(
+             EntityContainer<T> container, Filter filter, List<SortBy> sortBy) {
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetAllEntityIdentifiers(em, container, filter, sortBy);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
++    }
++    protected List<Object> doGetAllEntityIdentifiers(EntityManager em,
++            EntityContainer<T> container, Filter filter, List<SortBy> sortBy) {
+         if (sortBy == null) {
+             sortBy = Collections.emptyList();
+         }
+         sortBy = addPrimaryKeyToSortList(sortBy);
+-        TypedQuery<Object> query = createFilteredQuery(container,
++        TypedQuery<Object> query = createFilteredQuery(em, container,
+                 Arrays.asList(getEntityClassMetadata().getIdentifierProperty()
+                         .getName()), filter, sortBy, false);
+         return Collections.unmodifiableList(query.getResultList());
+@@ -801,12 +950,17 @@
+ 
+     public List<Object> getAllEntityIdentifiers(EntityContainer<T> container,
+             Filter filter, List<SortBy> sortBy) {
+-        return doGetAllEntityIdentifiers(container, filter, sortBy);
++    	EntityManager em = doGetEntityManager();
++    	try {
++    		return doGetAllEntityIdentifiers(em, container, filter, sortBy);
++    	} finally {
++    		doCloseEntityManager(em);
++    	}
+     }
+ 
+     /*
+      * (non-Javadoc)
+-     * 
++     *
+      * @see
+      * com.vaadin.addon.jpacontainer.EntityProvider#setQueryModifierDelegate
+      * (com.vaadin.addon.jpacontainer.EntityProvider.QueryModifierDelegate)
+@@ -817,7 +971,7 @@
+ 
+     /*
+      * (non-Javadoc)
+-     * 
++     *
+      * @see
+      * com.vaadin.addon.jpacontainer.EntityProvider#getQueryModifierDelegate()
+      */
+@@ -890,33 +1044,38 @@
+     }
+ 
+     public T refreshEntity(T entity) {
+-        if (getEntityManager().contains(entity)) {
+-            try {
+-                getEntityManager().refresh(entity);
+-            } catch (IllegalArgumentException e) {
+-                // detached, removed or something, get by id from em and refresh
+-                // than non-detached object
+-                entity = findAndRefresh(entity);
+-            } catch (EntityNotFoundException e) {
+-                return null;
+-            } catch (TransactionRequiredException e) {
+-                // TODO: handle exception, only in transactional?
+-            }
+-        } else {
+-            entity = findAndRefresh(entity);
+-        }
+-        return entity;
++    	EntityManager em = getEntityManager();
++    	try {
++	        if (em.contains(entity)) {
++	            try {
++	            	em.refresh(entity);
++	            } catch (IllegalArgumentException e) {
++	                // detached, removed or something, get by id from em and refresh
++	                // than non-detached object
++	                entity = findAndRefresh(em, entity);
++	            } catch (EntityNotFoundException e) {
++	                return null;
++	            } catch (TransactionRequiredException e) {
++	                // TODO: handle exception, only in transactional?
++	            }
++	        } else {
++	            entity = findAndRefresh(em, entity);
++	        }
++	        return entity;
++		} finally {
++			doCloseEntityManager(em);
++		}
+     }
+ 
+-    private T findAndRefresh(T entity) {
+-        entity = getEntityManager().find(
++    private T findAndRefresh(EntityManager em, T entity) {
++        entity = em.find(
+                 getEntityClassMetadata().getMappedClass(),
+                 getIdentifier(entity));
+         if (entity != null) {
+             try {
+                 // now try to refresh the attached entity
+-                getEntityManager().refresh(entity);
+-                entity = detachEntity(entity);
++            	em.refresh(entity);
++    	        entity = doDetachEntity(em, entity);
+             } catch (TransactionRequiredException e) {
+                 // NOP
+             } catch (Exception e) {
+@@ -926,9 +1085,15 @@
+         return entity;
+     }
+ 
+-    /*
++    protected void doCloseEntityManager(EntityManager em) {
++		if (closeEntityManager) {
++			em.close();
++		}
++	}
++
++	/*
+      * (non-Javadoc)
+-     * 
++     *
+      * @see
+      * com.vaadin.addon.jpacontainer.EntityContainer#setLazyLoadingDelegate(
+      * com.vaadin.addon.jpacontainer.EntityContainer.LazyLoadingDelegate)
+@@ -946,7 +1111,7 @@
+ 
+     /*
+      * (non-Javadoc)
+-     * 
++     *
+      * @see com.vaadin.addon.jpacontainer.EntityProvider#refresh()
+      */
+     public void refresh() {
+Index: src/main/java/com/vaadin/addon/jpacontainer/provider/CachingSupport.java
+===================================================================
+--- src/main/java/com/vaadin/addon/jpacontainer/provider/CachingSupport.java	(revision 26198)
++++ src/main/java/com/vaadin/addon/jpacontainer/provider/CachingSupport.java	(working copy)
+@@ -28,6 +28,7 @@
+ import java.util.Map;
+ import java.util.Set;
+ 
++import javax.persistence.EntityManager;
+ import javax.persistence.TypedQuery;
+ 
+ import com.vaadin.addon.jpacontainer.EntityContainer;
+@@ -41,13 +42,14 @@
+  * Delegate class that implements caching for {@link LocalEntityProvider}s and
+  * their subclasses. This class is internal and should never be used outside of
+  * JPAContainer.
+- * 
++ *
+  * @author Petter Holmström (Vaadin Ltd)
+  * @since 1.0
+  */
+ class CachingSupport<T> implements Serializable {
+ 
+-    private final LocalEntityProvider<T> entityProvider;
++	private static final long serialVersionUID = 4406653232562941478L;
++	private final LocalEntityProvider<T> entityProvider;
+     private int maxCacheSize = 1000;
+     private boolean cacheEnabled = true;
+     private boolean cloneCachedEntities = false;
+@@ -75,7 +77,7 @@
+     /**
+      * The max size of the filter cache (i.e. how many different filters to
+      * cache).
+-     * 
++     *
+      * @see #getFilterCache()
+      */
+     public static final int MAX_FILTER_CACHE_SIZE = 10;
+@@ -92,7 +94,7 @@
+     /**
+      * Creates a new <code>CachingSupport</code> for the specified entity
+      * provider.
+-     * 
++     *
+      * @param entityProvider
+      *            the entity provider (never null).
+      */
+@@ -104,7 +106,7 @@
+     /**
+      * Data structure used by {@link FilterCacheEntry} to store entityId lists
+      * sorted in different ways.
+-     * 
++     *
+      * @author Petter Holmström (Vaadin Ltd)
+      * @since 1.0
+      */
+@@ -120,7 +122,7 @@
+      * This class represents a cache for a specific {@link Filter}. The class
+      * contains counterparts of most of the methods defined in
+      * {@link EntityProvider}.
+-     * 
++     *
+      * @author Petter Holmström (Vaadin Ltd)
+      * @since 1.0
+      */
+@@ -136,7 +138,7 @@
+ 
+         /**
+          * Creates a new <code>FilterCacheEntry</code>.
+-         * 
++         *
+          * @param filter
+          *            the filter for which this cache should be created.
+          */
+@@ -146,7 +148,7 @@
+ 
+         /**
+          * Gets the number of entities that match this particular filter.
+-         * 
++         *
+          * @return the number of entities.
+          */
+         public synchronized int getEntityCount(EntityContainer<T> container) {
+@@ -306,7 +308,7 @@
+          * (changed or removed). If the entityId is currently in cache, the
+          * cache is flushed, forcing the data to be fetched from the database
+          * when requested the next time.
+-         * 
++         *
+          * @param entityId
+          *            the entityId to invalidate.
+          */
+@@ -415,7 +417,7 @@
+ 
+         /**
+          * Gets the filter for which this cache has been created.
+-         * 
++         *
+          * @return the filter (may be null).
+          */
+         public Filter getFilter() {
+@@ -425,7 +427,7 @@
+ 
+     /**
+      * TODO Document me!
+-     * 
++     *
+      * @param entityId
+      * @param updated
+      */
+@@ -443,7 +445,7 @@
+ 
+     /**
+      * TODO Document me!
+-     * 
++     *
+      * @param entity
+      */
+     public synchronized void entityAdded(T entity) {
+@@ -460,7 +462,7 @@
+      * <code>sortBy</code>, starting with the identifier at position
+      * <code>startFrom</code> and retrieving a maximum number of
+      * <code>fetchMax</code> items.
+-     * 
++     *
+      * @param filter
+      *            the filter to apply, if any (may be null).
+      * @param sortBy
+@@ -474,16 +476,22 @@
+      */
+     protected List<Object> getIds(EntityContainer<T> container, Filter filter,
+             List<SortBy> sortBy, int startFrom, int fetchMax) {
+-        TypedQuery<Object> query = entityProvider.createFilteredQuery(
+-                container,
+-                Arrays.asList(entityProvider.getEntityClassMetadata()
+-                        .getIdentifierProperty().getName()), filter,
+-                entityProvider.addPrimaryKeyToSortList(sortBy), false);
+-        query.setFirstResult(startFrom);
+-        if (fetchMax > 0) {
+-            query.setMaxResults(fetchMax);
+-        }
+-        return query.getResultList();
++    	EntityManager em = entityProvider.getEntityManager();
++    	try {
++	        TypedQuery<Object> query = entityProvider.createFilteredQuery(
++	        		em,
++	                container,
++	                Arrays.asList(entityProvider.getEntityClassMetadata()
++	                        .getIdentifierProperty().getName()), filter,
++	                entityProvider.addPrimaryKeyToSortList(sortBy), false);
++	        query.setFirstResult(startFrom);
++	        if (fetchMax > 0) {
++	            query.setMaxResults(fetchMax);
++	        }
++	        return query.getResultList();
++    	} finally {
++    		entityProvider.doCloseEntityManager(em);
++    	}
+     }
+ 
+     /**
+@@ -493,7 +501,7 @@
+      * <code>fetchMax</code> items. If <code>startFrom</code> is at position n,
+      * then item n+1 will be the first item in the returnde list, n+2 the
+      * second, etc.
+-     * 
++     *
+      * @param filter
+      *            the filter to apply, if any (may be null).
+      * @param sortBy
+@@ -507,12 +515,17 @@
+      */
+     protected List<Object> getNextIds(EntityContainer<T> container,
+             Filter filter, List<SortBy> sortBy, Object startFrom, int fetchMax) {
+-        TypedQuery<Object> query = entityProvider.createSiblingQuery(container,
+-                startFrom, filter, sortBy, false);
+-        if (fetchMax > 0) {
+-            query.setMaxResults(fetchMax);
+-        }
+-        return query.getResultList();
++    	EntityManager em = entityProvider.getEntityManager();
++    	try {
++	        TypedQuery<Object> query = entityProvider.createSiblingQuery(em, container,
++	                startFrom, filter, sortBy, false);
++	        if (fetchMax > 0) {
++	            query.setMaxResults(fetchMax);
++	        }
++	        return query.getResultList();
++    	} finally {
++    		entityProvider.doCloseEntityManager(em);
++    	}
+     }
+ 
+     /**
+@@ -522,7 +535,7 @@
+      * <code>fetchMax</code> items. If <code>startFrom</code> is at position n,
+      * then item n-1 will be the first item in the returned list, n-2 the
+      * second, etc.
+-     * 
++     *
+      * @param filter
+      *            the filter to apply, if any (may be null).
+      * @param sortBy
+@@ -536,12 +549,17 @@
+      */
+     protected List<Object> getPreviousIds(EntityContainer<T> container,
+             Filter filter, List<SortBy> sortBy, Object startFrom, int fetchMax) {
+-        TypedQuery<Object> query = entityProvider.createSiblingQuery(container,
+-                startFrom, filter, sortBy, true);
+-        if (fetchMax > 0) {
+-            query.setMaxResults(fetchMax);
+-        }
+-        return query.getResultList();
++    	EntityManager em = entityProvider.getEntityManager();
++    	try {
++	        TypedQuery<Object> query = entityProvider.createSiblingQuery(container,
++	                startFrom, filter, sortBy, true);
++	        if (fetchMax > 0) {
++	            query.setMaxResults(fetchMax);
++	        }
++	        return query.getResultList();
++    	} finally {
++    		entityProvider.doCloseEntityManager(em);
++    	}
+     }
+ 
+     private Map<Object, T> entityCache;
+@@ -550,7 +568,7 @@
+     /**
+      * A hash map that will remove the oldest items once its size reaches a
+      * specified max size.
+-     * 
++     *
+      * @author Petter Holmström (Vaadin Ltd)
+      * @since 1.0
+      */
+@@ -579,7 +597,7 @@
+     /**
+      * A hash set that will remove the oldest items once its size reaches a
+      * specified max size.
+-     * 
++     *
+      * @author Petter Holmström (Vaadin Ltd)
+      * @since 1.0
+      */
+@@ -608,7 +626,7 @@
+     /**
+      * Gets the cache for entity instances. If no cache exists, it will be
+      * created.
+-     * 
++     *
+      * @return the entity cache (never null).
+      */
+     synchronized Map<Object, T> getEntityCache() {
+@@ -621,7 +639,7 @@
+     /**
+      * Gets the cache for filter results. If no cache exists, it will be
+      * created.
+-     * 
++     *
+      * @return the filter cache (never null).
+      */
+     synchronized Map<Filter, FilterCacheEntry> getFilterCache() {
+@@ -635,7 +653,7 @@
+     /**
+      * Gets the cache entry for the specified filter. If no cache entry exists,
+      * it will be created.
+-     * 
++     *
+      * @param filter
+      *            the filter whose cache entry to fetch (may be null).
+      * @return the filter cache entry (never null).
+@@ -669,7 +687,7 @@
+      * Check whether caching is possible or not. Caching is not possible if
+      * there is a {@link QueryModifierDelegate}, that modifies the filters
+      * applied to queries, attached to the entity provider.
+-     * 
++     *
+      * @return true if caching is possible
+      */
+     public boolean isCachingPossible(EntityContainer<T> container) {
+@@ -695,7 +713,7 @@
+     /**
+      * Only returns true if both {@link #isCacheEnabled()} and
+      * {@link #isCachingPossible()} are true.
+-     * 
++     *
+      * @return true if the caching mechanism is actually used.
+      */
+     public boolean usesCache(EntityContainer<T> container) {
+@@ -708,7 +726,7 @@
+ 
+     /**
+      * Turns the cache on or off.
+-     * 
++     *
+      * @param cacheEnabled
+      *            true to turn on the cache, false to turn it off.
+      */
+@@ -722,7 +740,7 @@
+     /**
+      * Sets the maximum number of items to keep in each cache. This method will
+      * cause any existing caches to be flushed and re-created.
+-     * 
++     *
+      * @param maxSize
+      *            the maximum cache size to set.
+      */
+@@ -775,7 +793,7 @@
+     /**
+      * Returns a clone of <code>entity</code> if
+      * {@link #isCloneCachedEntities() } is true.
+-     * 
++     *
+      * @param entity
+      *            the entity to clone (must not be null and must be an instance
+      *            of {@link Cloneable}).
+Index: src/main/java/com/vaadin/addon/jpacontainer/JPAContainerFactory.java
+===================================================================
+--- src/main/java/com/vaadin/addon/jpacontainer/JPAContainerFactory.java	(revision 26198)
++++ src/main/java/com/vaadin/addon/jpacontainer/JPAContainerFactory.java	(working copy)
+@@ -34,7 +34,7 @@
+ /**
+  * A factory for creating instances of JPAContainers backed by different default
+  * entity providers.
+- * 
++ *
+  * @author Jonatan Kronqvist / Vaadin Ltd
+  */
+ public class JPAContainerFactory {
+@@ -50,7 +50,7 @@
+      * Creates a new instance of JPAContainer backed by a
+      * {@link CachingMutableLocalEntityProvider}. This method should be used if
+      * you already know an instance of {@link EntityManager}.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -68,7 +68,7 @@
+ 
+     /**
+      * Builds a JPAContainer with the specified {@link EntityProvider}
+-     * 
++     *
+      * @param entityClass
+      *            the class of the entity
+      * @param entityProvider
+@@ -88,10 +88,10 @@
+      * do not know and do not need/want to know the instance of
+      * {@link EntityManager} that is used, which is the case in simplistic
+      * instances.
+-     * 
++     *
+      * An instance of {@link EntityManagerFactory} will be created for the
+      * persistence unit and used to build entity managers.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -102,8 +102,9 @@
+      */
+     public static <T> JPAContainer<T> make(Class<T> entityClass,
+             String persistenceUnitName) {
+-        return make(entityClass,
+-                createEntityManagerForPersistenceUnit(persistenceUnitName));
++        return makeWithEntityProvider(entityClass,
++                new CachingMutableLocalEntityProvider<T>(entityClass,
++                		persistenceUnitName));
+     }
+ 
+     /**
+@@ -111,7 +112,7 @@
+      * {@link EntityManagerFactory} for the persistence unit. If no entity
+      * manager factory exists, one is created before using it to build the
+      * entity manager.
+-     * 
++     *
+      * @param name
+      *            the name of the persistence unit.
+      * @return an entity manager for the persistence unit.
+@@ -128,7 +129,7 @@
+      * Creates a new instance of JPAContainer backed by a
+      * {@link CachingLocalEntityProvider}. This method should be used if you
+      * already know an instance of {@link EntityManager}.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -148,10 +149,10 @@
+      * {@link CachingLocalEntityProvider}. This method can be used if you do not
+      * know and do not need/want to know the instance of {@link EntityManager}
+      * that is used, which is the case in simplistic instances.
+-     * 
++     *
+      * An instance of {@link EntityManagerFactory} will be created for the
+      * persistence unit and used to build entity managers.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -170,7 +171,7 @@
+      * Creates a new instance of JPAContainer backed by a
+      * {@link CachingBatchableLocalEntityProvider}. This method should be used
+      * if you already know an instance of {@link EntityManager}.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -192,10 +193,10 @@
+      * you do not know and do not need/want to know the instance of
+      * {@link EntityManager} that is used, which is the case in simplistic
+      * instances.
+-     * 
++     *
+      * An instance of {@link EntityManagerFactory} will be created for the
+      * persistence unit and used to build entity managers.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -214,7 +215,7 @@
+      * Creates a new instance of JPAContainer backed by a
+      * {@link MutableLocalEntityProvider}. This method should be used if you
+      * already know an instance of {@link EntityManager}.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -234,10 +235,10 @@
+      * {@link MutableLocalEntityProvider}. This method can be used if you do not
+      * know and do not need/want to know the instance of {@link EntityManager}
+      * that is used, which is the case in simplistic instances.
+-     * 
++     *
+      * An instance of {@link EntityManagerFactory} will be created for the
+      * persistence unit and used to build entity managers.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -256,7 +257,7 @@
+      * Creates a new instance of JPAContainer backed by a
+      * {@link LocalEntityProvider}. This method should be used if you already
+      * know an instance of {@link EntityManager}.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -276,10 +277,10 @@
+      * {@link LocalEntityProvider}. This method can be used if you do not know
+      * and do not need/want to know the instance of {@link EntityManager} that
+      * is used, which is the case in simplistic instances.
+-     * 
++     *
+      * An instance of {@link EntityManagerFactory} will be created for the
+      * persistence unit and used to build entity managers.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -298,7 +299,7 @@
+      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+      * from "java:comp/env/persistence/em". Container also uses JTA
+      * transactions. This type of container commonly suits for JEE6 environment.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -317,7 +318,7 @@
+      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+      * from "java:comp/env/persistence/em". Container also uses JTA
+      * transactions. This type of container commonly suits for JEE6 environment.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -340,7 +341,7 @@
+      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+      * from "java:comp/env/persistence/em". Container also uses JTA
+      * transactions. This type of container commonly suits for JEE6 environment.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -358,7 +359,7 @@
+      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+      * from "java:comp/env/persistence/em". Container also uses JTA
+      * transactions. This type of container commonly suits for JEE6 environment.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -381,7 +382,7 @@
+      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+      * from "java:comp/env/persistence/em". Container also uses JTA
+      * transactions. This type of container commonly suits for JEE6 environment.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -399,7 +400,7 @@
+      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+      * from "java:comp/env/persistence/em". Container also uses JTA
+      * transactions. This type of container commonly suits for JEE6 environment.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -422,7 +423,7 @@
+      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+      * from "java:comp/env/persistence/em". Container also uses JTA
+      * transactions. This type of container commonly suits for JEE6 environment.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+@@ -440,7 +441,7 @@
+      * Creates a JPAContainer that uses JNDI lookups to fetch entity manager
+      * from "java:comp/env/persistence/em". Container also uses JTA
+      * transactions. This type of container commonly suits for JEE6 environment.
+-     * 
++     *
+      * @param <T>
+      *            the type of entity to be contained in the JPAContainer
+      * @param entityClass
+Index: src/main/java/com/vaadin/addon/jpacontainer/EntityManagerProvider.java
+===================================================================
+--- src/main/java/com/vaadin/addon/jpacontainer/EntityManagerProvider.java	(revision 26198)
++++ src/main/java/com/vaadin/addon/jpacontainer/EntityManagerProvider.java	(working copy)
+@@ -15,18 +15,20 @@
+  */
+ package com.vaadin.addon.jpacontainer;
+ 
++import java.io.Serializable;
++
+ import javax.persistence.EntityManager;
+ 
+ /**
+  * This interface is used by EntityProvider to find the correct EntityManager to
+  * use.
+- * 
++ *
+  * @author Jonatan Kronqvist / Vaadin Ltd
+  */
+-public interface EntityManagerProvider {
++public interface EntityManagerProvider extends Serializable {
+     /**
+      * Gets the entity manager.
+-     * 
++     *
+      * @return the entity manager, or null if none has been specified.
+      */
+     EntityManager getEntityManager();
+Index: pom.xml
+===================================================================
+--- pom.xml	(revision 26198)
++++ pom.xml	(working copy)
+@@ -4,7 +4,7 @@
+ 
+     <groupId>com.vaadin.addon</groupId>
+     <artifactId>jpacontainer</artifactId>
+-    <version>3.1.1-SNAPSHOT</version>
++    <version>3.1.11-SNAPSHOT</version>
+     <packaging>jar</packaging>
+ 
+     <name>Vaadin JPAContainer Add-on</name>

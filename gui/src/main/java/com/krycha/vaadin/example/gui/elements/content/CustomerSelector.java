@@ -56,7 +56,7 @@ public class CustomerSelector extends CustomField<Customer> {
     }
 
 	private void setCustomer(Customer newValue) {
-		customer.setValue(newValue != null ? newValue.getId() : null);
+		customer.setValue(newValue != null ? newValue.getKey() : null);
 	}
 
 

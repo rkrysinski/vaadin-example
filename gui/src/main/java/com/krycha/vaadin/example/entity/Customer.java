@@ -15,19 +15,17 @@
 package com.krycha.vaadin.example.entity;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.jdo.annotations.Extension;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.google.appengine.api.datastore.Key;
 
 /**
  * Customer entity.
@@ -38,8 +36,8 @@ public class Customer implements Serializable {
 	private static final long serialVersionUID = -5814642577816427740L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	protected int id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	protected Key key;
 
 	@Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
 	@NotNull
@@ -48,9 +46,6 @@ public class Customer implements Serializable {
 
 	@Size(min = 0, max = 300)
 	protected String description;
-
-	@OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
-	protected List<Incident> incidents = new ArrayList<Incident>();
 
 	@Version
 	private long version;
@@ -92,21 +87,6 @@ public class Customer implements Serializable {
 	}
 
 	/**
-	 * @return the incidents
-	 */
-	public List<Incident> getIncidents() {
-		return incidents;
-	}
-
-	/**
-	 * @param incidents
-	 *            the incidents to set
-	 */
-	public void setIncidents(List<Incident> incidents) {
-		this.incidents = incidents;
-	}
-
-	/**
 	 * @return the version
 	 */
 	public long getVersion() {
@@ -124,16 +104,16 @@ public class Customer implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
-		return id;
+	public Key getKey() {
+		return key;
 	}
 
 	/**
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(int id) {
-		this.id = id;
+	public void setKey(Key id) {
+		this.key = id;
 	}
 
 	/*
